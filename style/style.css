@@ -7,7 +7,7 @@ body {
     margin-bottom: 10px; /* Espacio debajo del contenedor de pestañas */
     gap: 10px;
     height: 45px; /* Altura del contenedor */
-    background-color: black;
+    background-color: #494848;
     display: flex; /* Utiliza flexbox para alinear los botones */
     align-items: center; /* Centra los botones verticalmente */
 }
@@ -26,6 +26,7 @@ body {
     font-size: 16px;
     border: none;
     cursor: pointer;
+    border: 2px solid #767676;
 }
 
 /* Estilo para el contenido del menú desplegable */
@@ -75,6 +76,7 @@ body {
     font-size: 16px;
     border: none;
     cursor: pointer;
+    border: 2px solid #767676;
 }
 
 /* Estilo para el contenedor del menú desplegable */
@@ -91,6 +93,7 @@ body {
     font-size: 16px;
     border: none;
     cursor: pointer;
+    border: 2px solid #767676;
 }
 
 /* Estilo para el contenido del menú desplegable */
