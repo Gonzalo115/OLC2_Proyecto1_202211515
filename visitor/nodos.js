@@ -186,7 +186,6 @@ export class Cadena extends Expresion {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        console.log(this)
         return visitor.visitCadena(this);
     }
 }

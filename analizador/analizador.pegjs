@@ -58,7 +58,7 @@ Multiplicacion = exp_left:Unaria expansion:(
     )
 }
 
-Unaria = "-" _ num:Nativo { return crearNodo('aritmeticaU', { operacion: '-', exp: num }) }
+Unaria = "-" _ num:Nativo _ { return crearNodo('aritmeticaU', { operacion: '-', exp_unica: num }) }
       / Nativo
 
 Nativo = [0-9]+( "." [0-9]+ )?                    { return crearNodo('numero',  { valor: parseFloat(text(), 10) })}

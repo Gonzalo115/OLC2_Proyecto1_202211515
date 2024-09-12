@@ -266,7 +266,7 @@ function peg$parse(input, options) {
       exp_left
     )
 };
-  var peg$f10 = function(num) { return crearNodo('aritmeticaU', { operacion: '-', exp: num }) };
+  var peg$f10 = function(num) { return crearNodo('aritmeticaU', { operacion: '-', exp_unica: num }) };
   var peg$f11 = function() { return crearNodo('numero',  { valor: parseFloat(text(), 10) })};
   var peg$f12 = function() { return crearNodo('bool',    { valor: text() === "true" })};
   var peg$f13 = function(chars) { return crearNodo('cadena',  { valor: chars.join('')});};

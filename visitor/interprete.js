@@ -71,12 +71,21 @@ export class InterpreterVisitor extends BaseVisitor {
       * @type {BaseVisitor['visitAritmetica_Unaria']}
     */
     visitAritmetica_Unaria(node) {
-        const exp_unica = node.exp.accept(this);
-        switch (node.op) {
+        const exp_unica = node.exp_unica.accept(this);
+
+        if (exp_unica instanceof Errores){
+          return exp_unica
+        }
+
+        switch (node.operacion) {
             case '-':
+              if(!(Number.isInteger(exp_unica))){
+                return new Errores("La negacion unaria solo permite enteros", node.location.start.line, node.location.start.column)
+              }
                 return -exp_unica;
             default:
-                throw new Error(`Operador no soportado: ${node.op}`);
+              return new Errores("Operacion unaria no soportada", node.location.start.line, node.location.start.column)
+
         }    }
     
     /**
