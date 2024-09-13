@@ -263,7 +263,7 @@ export class Agrupacion extends Expresion {
     }
 }
     
-export class Numero extends Expresion {
+export class Entero extends Expresion {
 
     /**
     * @param {Object} options
@@ -284,7 +284,32 @@ export class Numero extends Expresion {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitNumero(this);
+        return visitor.visitEntero(this);
+    }
+}
+    
+export class Decimal extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {decimal} options.valor Valor del numero
+    */
+    constructor({ valor }) {
+        super();
+        
+        /**
+         * Valor del numero
+         * @type {decimal}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDecimal(this);
     }
 }
     
@@ -471,4 +496,4 @@ export class ExpresionStmt extends Expresion {
     }
 }
     
-export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, Numero, Cadena, Booleano, Char, DeclaracionVariable, ReferenciaVariable, Println, ExpresionStmt }
+export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, Entero, Decimal, Cadena, Booleano, Char, DeclaracionVariable, ReferenciaVariable, Println, ExpresionStmt }

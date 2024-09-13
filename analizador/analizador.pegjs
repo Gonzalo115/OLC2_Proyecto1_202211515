@@ -8,7 +8,8 @@
       'relacion':             nodos.Relacional,
       'logico':               nodos.Logico,
       'agrupacion':           nodos.Agrupacion,
-      'numero':               nodos.Numero,
+      'entero':               nodos.Entero,
+      'decimal':              nodos.Decimal,
       'cadena':               nodos.Cadena,
       'bool':                 nodos.Booleano,
       'char':                 nodos.Char,
@@ -112,8 +113,8 @@ Multiplicacion = exp_left:Unaria expansion:(
 Unaria =_ operacion:("-" / "!") _ num:Nativo _ { return crearNodo('OperacionU', { operacion: operacion, exp_unica: num }) }
       / Nativo
 
-Nativo = [0-9]+("." [0-9]+) { return crearNodo('numero', { valor: parseFloat(text()) }) }
-       / [0-9]+             { return crearNodo('numero', { valor: parseInt(text(), 10) }) }
+Nativo = [0-9]+("." [0-9]+) { return crearNodo('decimal', { valor: parseFloat(text()) }) }
+      /[0-9]+             { return crearNodo('entero', { valor: parseInt(text(), 10) }) } 
       /("true"/"false")                               { return crearNodo('bool',    { valor: text() === "true" })}
       /'"' chars:( [^\\"\n\r] / escapeSequence)* '"'  { return crearNodo('cadena',  { valor: chars.join('')});}
       /"'" chars:[\x00-\uffff] "'"                        { return crearNodo('char',    { valor: chars }); }

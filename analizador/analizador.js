@@ -321,8 +321,8 @@ function peg$parse(input, options) {
     )
 };
   var peg$f18 = function(operacion, num) { return crearNodo('OperacionU', { operacion: operacion, exp_unica: num }) };
-  var peg$f19 = function() { return crearNodo('numero', { valor: parseFloat(text()) }) };
-  var peg$f20 = function() { return crearNodo('numero', { valor: parseInt(text(), 10) }) };
+  var peg$f19 = function() { return crearNodo('decimal', { valor: parseFloat(text()) }) };
+  var peg$f20 = function() { return crearNodo('entero', { valor: parseInt(text(), 10) }) };
   var peg$f21 = function() { return crearNodo('bool',    { valor: text() === "true" })};
   var peg$f22 = function(chars) { return crearNodo('cadena',  { valor: chars.join('')});};
   var peg$f23 = function(chars) { return crearNodo('char',    { valor: chars }); };
@@ -1710,7 +1710,8 @@ function peg$parse(input, options) {
       'relacion':             nodos.Relacional,
       'logico':               nodos.Logico,
       'agrupacion':           nodos.Agrupacion,
-      'numero':               nodos.Numero,
+      'entero':               nodos.Entero,
+      'decimal':              nodos.Decimal,
       'cadena':               nodos.Cadena,
       'bool':                 nodos.Booleano,
       'char':                 nodos.Char,

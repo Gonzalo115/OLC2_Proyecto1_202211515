@@ -1,6 +1,6 @@
 import { Entorno } from "../utils/entorno.js";
 import { Errores } from "../utils/errores.js";
-import { Numero, Cadena, Char, Booleano } from "./nodos.js";
+import { Cadena, Char, Booleano, Entero, Decimal } from "./nodos.js";
 import { BaseVisitor } from "./visitor.js";
 
 
@@ -28,43 +28,72 @@ export class InterpreterVisitor extends BaseVisitor {
 
     switch (node.operacion) {
       case '+':
-        if (num_left instanceof Numero && num_right instanceof Numero) {
-          num_left.valor = num_left.valor + num_right.valor
-          return num_left
+        if (num_left instanceof Entero && num_right instanceof Entero) {
+          const nodoS = new Entero({ valor: num_left.valor + num_right.valor })
+          nodoS.location = node.location
+          return nodoS;
+        }
+
+        if ((num_left instanceof Entero && num_right instanceof Decimal) || (num_left instanceof Decimal && num_right instanceof Entero) || (num_left instanceof Decimal && num_right instanceof Decimal)) {
+          const nodoS = new Decimal({ valor: num_left.valor + num_right.valor })
+          nodoS.location = node.location
+          return nodoS;
         }
 
         if (num_left instanceof Cadena && num_right instanceof Cadena) {
-          num_left.valor = num_left.valor + num_right.valor
-          return num_left
+          const nodoS = new Cadena({ valor: num_left.valor + num_right.valor })
+          nodoS.location = node.location
+          return nodoS;
         }
         return new Errores("La suma entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
       case '-':
-        if (!(num_left instanceof Numero && num_right instanceof Numero)) {
-          return new Errores("La resta entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
+        if (num_left instanceof Entero && num_right instanceof Entero) {
+          const nodoR = new Entero({ valor: num_left.valor - num_right.valor })
+          nodoR.location = node.location
+          return nodoR;
         }
-        num_left.valor = num_left.valor - num_right.valor
-        return num_left
+
+        if ((num_left instanceof Entero && num_right instanceof Decimal) || (num_left instanceof Decimal && num_right instanceof Entero) || (num_left instanceof Decimal && num_right instanceof Decimal)) {
+          const nodoR = new Decimal({ valor: num_left.valor - num_right.valor })
+          nodoR.location = node.location
+          return nodoR;
+        }
+        return new Errores("La resta entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
+
       case '*':
-        if (!(num_left instanceof Numero && num_right instanceof Numero)) {
-          return new Errores("La multiplicacion entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
+        if (num_left instanceof Entero && num_right instanceof Entero) {
+          const nodoM = new Entero({ valor: num_left.valor * num_right.valor })
+          nodoM.location = node.location
+          return nodoM;
         }
-        num_left.valor = num_left.valor * num_right.valor
-        return num_left
+
+        if ((num_left instanceof Entero && num_right instanceof Decimal) || (num_left instanceof Decimal && num_right instanceof Entero) || (num_left instanceof Decimal && num_right instanceof Decimal)) {
+          const nodoM = new Decimal({ valor: num_left.valor * num_right.valor })
+          nodoM.location = node.location
+          return nodoM;
+        }
+        return new Errores("La resta entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
+
       case '/':
-        if (!(num_left instanceof Numero && num_right instanceof Numero)) {
-          return new Errores("La division entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
-        }
-        if (num_right == 0) {
+        if (num_right.valor == 0) {
           return new Errores("La division entre cero no esta permitida", node.location.start.line, node.location.start.column)
         }
-        if (Number.isInteger(num_left.valor) && Number.isInteger(num_right.valor)) {
-          num_left.valor = Math.floor(num_left.valor / num_right.valor)
-          return num_left
+
+        if (num_left instanceof Entero && num_right instanceof Entero) {
+          const nodoD = new Entero({ valor: Math.floor(num_left.valor / num_right.valor) })
+          nodoD.location = node.location
+          return nodoD;
         }
-        num_left.valor = num_left.valor / num_right.valor
-        return num_left
+
+        if ((num_left instanceof Entero && num_right instanceof Decimal) || (num_left instanceof Decimal && num_right instanceof Entero) || (num_left instanceof Decimal && num_right instanceof Decimal)) {
+          const nodoD = new Decimal({ valor: num_left.valor / num_right.valor })
+          nodoD.location = node.location
+          return nodoD;
+        }
+
+        return new Errores("La division entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
       case '%':
-        if (!(Number.isInteger(num_left.valor) && Number.isInteger(num_right.valor))) {
+        if (!(num_left instanceof Entero && num_right instanceof Entero)) {
           return new Errores("El modulo entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
         }
         num_left.valor = num_left.valor % num_right.valor
@@ -87,12 +116,17 @@ export class InterpreterVisitor extends BaseVisitor {
 
     switch (node.operacion) {
       case '-':
-        if (!(exp_unica instanceof Numero)) {
-          return new Errores("La negacion unaria solo permite numeros", node.location.start.line, node.location.start.column)
+        if (exp_unica instanceof Entero) {
+          const nodoR = new Entero({ valor: -exp_unica.valor })
+          nodoR.location = node.location
+          return nodoR;
         }
-        const nodoR = new Numero({ valor: -exp_unica.valor })
-        nodoR.location = node.location
-        return nodoR;
+        if (exp_unica instanceof Decimal) {
+          const nodoR = new Decimal({ valor: -exp_unica.valor })
+          nodoR.location = node.location
+          return nodoR;
+        }
+        return new Errores("La negacion unaria solo permite numeros", node.location.start.line, node.location.start.column)
       case '!':
         if (!(exp_unica instanceof Booleano)) {
           return new Errores("La negacion unaria solo permite numeros", node.location.start.line, node.location.start.column)
@@ -125,7 +159,7 @@ export class InterpreterVisitor extends BaseVisitor {
     // Validar los tipos de los operandos. 
     var mismoTipo = false;
 
-    if (num_left instanceof Numero && num_right instanceof Numero) {
+    if ((num_left instanceof Entero && num_right instanceof Decimal) || (num_left instanceof Decimal && num_right instanceof Entero) || (num_left instanceof Entero && num_right instanceof Entero) || (num_left instanceof Decimal && num_right instanceof Decimal)) {
       mismoTipo = true;
     }
 
@@ -181,7 +215,7 @@ export class InterpreterVisitor extends BaseVisitor {
     // Validar los tipos de los operandos. 
     var mismoTipo = false;
 
-    if (num_left instanceof Numero && num_right instanceof Numero) {
+    if ((num_left instanceof Entero && num_right instanceof Decimal) || (num_left instanceof Decimal && num_right instanceof Entero) || (num_left instanceof Entero && num_right instanceof Entero) || (num_left instanceof Decimal && num_right instanceof Decimal)) {
       mismoTipo = true;
     }
 
@@ -258,14 +292,6 @@ export class InterpreterVisitor extends BaseVisitor {
   }
 
   /**
-    * @type {BaseVisitor['visitComparacion_Unaria']}
-  */
-  visitComparacion_Unaria(node) {
-    throw new Error('Metodo visitComparacion_Unaria no implementado');
-  }
-
-
-  /**
     * @type {BaseVisitor['visitAgrupacion']}
   */
   visitAgrupacion(node) {
@@ -273,9 +299,9 @@ export class InterpreterVisitor extends BaseVisitor {
   }
 
   /**
-    * @type {BaseVisitor['visitNumero']}
+    * @type {BaseVisitor['visitEntero']}
   */
-  visitNumero(node) {
+  visitEntero(node) {
     return node;
   }
 
@@ -283,6 +309,13 @@ export class InterpreterVisitor extends BaseVisitor {
     * @type {BaseVisitor['visitCadena']}
   */
   visitCadena(node) {
+    return node;
+  }
+
+  /**
+    * @type {BaseVisitor['visitDecimal']}
+  */
+  visitDecimal(node) {
     return node;
   }
 
