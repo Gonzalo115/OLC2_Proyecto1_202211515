@@ -82,7 +82,7 @@ export class Aritmetica extends Expresion {
     }
 }
     
-export class Aritmetica_Unaria extends Expresion {
+export class Operacion_Unaria extends Expresion {
 
     /**
     * @param {Object} options
@@ -111,7 +111,130 @@ export class Aritmetica_Unaria extends Expresion {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitAritmetica_Unaria(this);
+        return visitor.visitOperacion_Unaria(this);
+    }
+}
+    
+export class Comparacion extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.exp_left Expresion izquierda de la operacion
+ * @param {Expresion} options.exp_right Expresion derecha de la operacion
+ * @param {string} options.operacion Operador de la operacion
+    */
+    constructor({ exp_left, exp_right, operacion }) {
+        super();
+        
+        /**
+         * Expresion izquierda de la operacion
+         * @type {Expresion}
+        */
+        this.exp_left = exp_left;
+
+
+        /**
+         * Expresion derecha de la operacion
+         * @type {Expresion}
+        */
+        this.exp_right = exp_right;
+
+
+        /**
+         * Operador de la operacion
+         * @type {string}
+        */
+        this.operacion = operacion;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitComparacion(this);
+    }
+}
+    
+export class Relacional extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.exp_left Expresion izquierda de la operacion
+ * @param {Expresion} options.exp_right Expresion derecha de la operacion
+ * @param {string} options.operacion Operador de la operacion
+    */
+    constructor({ exp_left, exp_right, operacion }) {
+        super();
+        
+        /**
+         * Expresion izquierda de la operacion
+         * @type {Expresion}
+        */
+        this.exp_left = exp_left;
+
+
+        /**
+         * Expresion derecha de la operacion
+         * @type {Expresion}
+        */
+        this.exp_right = exp_right;
+
+
+        /**
+         * Operador de la operacion
+         * @type {string}
+        */
+        this.operacion = operacion;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitRelacional(this);
+    }
+}
+    
+export class Logico extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.exp_left Expresion izquierda de la operacion
+ * @param {Expresion} options.exp_right Expresion derecha de la operacion
+ * @param {string} options.operacion Operador de la operacion
+    */
+    constructor({ exp_left, exp_right, operacion }) {
+        super();
+        
+        /**
+         * Expresion izquierda de la operacion
+         * @type {Expresion}
+        */
+        this.exp_left = exp_left;
+
+
+        /**
+         * Expresion derecha de la operacion
+         * @type {Expresion}
+        */
+        this.exp_right = exp_right;
+
+
+        /**
+         * Operador de la operacion
+         * @type {string}
+        */
+        this.operacion = operacion;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitLogico(this);
     }
 }
     
@@ -169,14 +292,14 @@ export class Cadena extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {Cadena} options.valor Contenido de una string
+    * @param {cadena} options.valor Contenido de una string
     */
     constructor({ valor }) {
         super();
         
         /**
          * Contenido de una string
-         * @type {Cadena}
+         * @type {cadena}
         */
         this.valor = valor;
 
@@ -194,14 +317,14 @@ export class Booleano extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {Decimal} options.valor Valor booleano
+    * @param {bool} options.valor Valor booleano
     */
     constructor({ valor }) {
         super();
         
         /**
          * Valor booleano
-         * @type {Decimal}
+         * @type {bool}
         */
         this.valor = valor;
 
@@ -348,4 +471,4 @@ export class ExpresionStmt extends Expresion {
     }
 }
     
-export default { Expresion, Aritmetica, Aritmetica_Unaria, Agrupacion, Numero, Cadena, Booleano, Char, DeclaracionVariable, ReferenciaVariable, Println, ExpresionStmt }
+export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, Numero, Cadena, Booleano, Char, DeclaracionVariable, ReferenciaVariable, Println, ExpresionStmt }

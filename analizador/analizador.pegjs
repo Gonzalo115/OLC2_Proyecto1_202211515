@@ -3,7 +3,10 @@
   const crearNodo = (tipoNodo, props) =>{
     const tipos = {
       'aritmetica':           nodos.Aritmetica,
-      'aritmeticaU':          nodos.Aritmetica_Unaria,
+      'OperacionU':           nodos.Operacion_Unaria,
+      'comparacion':          nodos.Comparacion,
+      'relacion':             nodos.Relacional,
+      'logico':               nodos.Logico,
       'agrupacion':           nodos.Agrupacion,
       'numero':               nodos.Numero,
       'cadena':               nodos.Cadena,
@@ -32,7 +35,55 @@ DeclaracionVar = tipo:Tipo _ id:Identificador _ "=" _ exp:Expresion _ ";" { retu
 Stmt = "System.out.println" _ "(" _ exp:Expresion _ ")" _ ";" { return crearNodo('println', { exp }) }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
 
-Expresion = Suma
+Expresion = Or
+
+Or = exp_left:And expansion:(
+  _ operacion:("||") _ exp_right:And { return { tipo: operacion, exp_right } }
+)* { 
+  return expansion.reduce(
+    (operacionAnterior, operacionActual) => {
+      const { tipo, exp_right } = operacionActual
+      return crearNodo('logico', { operacion:tipo, exp_left: operacionAnterior, exp_right })
+    },
+    exp_left
+  )
+}
+
+And = exp_left:Comparacion expansion:(
+  _ operacion:("&&") _ exp_right:Comparacion { return { tipo: operacion, exp_right } }
+)* { 
+  return expansion.reduce(
+    (operacionAnterior, operacionActual) => {
+      const { tipo, exp_right } = operacionActual
+      return crearNodo('logico', { operacion:tipo, exp_left: operacionAnterior, exp_right })
+    },
+    exp_left
+  )
+}
+
+Comparacion = exp_left:Relacional expansion:(
+  _ operacion:("==" / "!=") _ exp_right:Relacional { return { tipo: operacion, exp_right } }
+)* { 
+  return expansion.reduce(
+    (operacionAnterior, operacionActual) => {
+      const { tipo, exp_right } = operacionActual
+      return crearNodo('comparacion', { operacion:tipo, exp_left: operacionAnterior, exp_right })
+    },
+    exp_left
+  )
+}
+
+Relacional = exp_left:Suma expansion:(
+  _ operacion:("<="/">="/">"/"<") _ exp_right:Suma { return { tipo: operacion, exp_right } }
+)* { 
+  return expansion.reduce(
+    (operacionAnterior, operacionActual) => {
+      const { tipo, exp_right } = operacionActual
+      return crearNodo('relacion', { operacion:tipo, exp_left: operacionAnterior, exp_right })
+    },
+    exp_left
+  )
+}
 
 Suma = exp_left:Multiplicacion expansion:(
   _ operacion:("+" / "-") _ exp_right:Multiplicacion { return { tipo: operacion, exp_right } }
@@ -47,7 +98,7 @@ Suma = exp_left:Multiplicacion expansion:(
 }
 
 Multiplicacion = exp_left:Unaria expansion:(
-  _ operacion:("*" / "/") _ exp_right:Unaria { return { tipo: operacion, exp_right } }
+  _ operacion:("*" / "/"/ "%") _ exp_right:Unaria { return { tipo: operacion, exp_right } }
 )* {
     return expansion.reduce(
       (operacionAnterior, operacionActual) => {
@@ -58,15 +109,16 @@ Multiplicacion = exp_left:Unaria expansion:(
     )
 }
 
-Unaria = "-" _ num:Nativo _ { return crearNodo('aritmeticaU', { operacion: '-', exp_unica: num }) }
+Unaria =_ operacion:("-" / "!") _ num:Nativo _ { return crearNodo('OperacionU', { operacion: operacion, exp_unica: num }) }
       / Nativo
 
-Nativo = [0-9]+( "." [0-9]+ )?                    { return crearNodo('numero',  { valor: parseFloat(text(), 10) })}
-  /("true"/"false")                               { return crearNodo('bool',    { valor: text() === "true" })}
-  /'"' chars:( [^\\"\n\r] / escapeSequence)* '"'  { return crearNodo('cadena',  { valor: chars.join('')});}
-  /"'" chars:[\x00-\uffff] "'"                        { return crearNodo('char',    { valor: chars }); }
-  / "(" _ exp:Expresion _ ")"                     { return crearNodo('agrupacion', { exp }) }
-  / id:Identificador                              { return crearNodo('referenciaVariable',  { id }) }
+Nativo = [0-9]+("." [0-9]+) { return crearNodo('numero', { valor: parseFloat(text()) }) }
+       / [0-9]+             { return crearNodo('numero', { valor: parseInt(text(), 10) }) }
+      /("true"/"false")                               { return crearNodo('bool',    { valor: text() === "true" })}
+      /'"' chars:( [^\\"\n\r] / escapeSequence)* '"'  { return crearNodo('cadena',  { valor: chars.join('')});}
+      /"'" chars:[\x00-\uffff] "'"                        { return crearNodo('char',    { valor: chars }); }
+      / "(" _ exp:Expresion _ ")"                     { return crearNodo('agrupacion', { exp }) }
+      / id:Identificador                              { return crearNodo('referenciaVariable',  { id }) }
 
 
 
