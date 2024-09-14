@@ -22,25 +22,16 @@
  * @typedef {import('./nodos.js').Agrupacion} Agrupacion
 
 
- * @typedef {import('./nodos.js').Entero} Entero
-
-
- * @typedef {import('./nodos.js').Decimal} Decimal
-
-
- * @typedef {import('./nodos.js').Cadena} Cadena
-
-
- * @typedef {import('./nodos.js').Booleano} Booleano
-
-
- * @typedef {import('./nodos.js').Char} Char
+ * @typedef {import('./nodos.js').DatoPrimitivo} DatoPrimitivo
 
 
  * @typedef {import('./nodos.js').DeclaracionVariable} DeclaracionVariable
 
 
  * @typedef {import('./nodos.js').ReferenciaVariable} ReferenciaVariable
+
+
+ * @typedef {import('./nodos.js').Asignacion} Asignacion
 
 
  * @typedef {import('./nodos.js').Println} Println
@@ -122,47 +113,11 @@ export class BaseVisitor {
     
 
     /**
-     * @param {Entero} node
+     * @param {DatoPrimitivo} node
      * @returns {any}
      */
-    visitEntero(node) {
-        throw new Error('Metodo visitEntero no implementado');
-    }
-    
-
-    /**
-     * @param {Decimal} node
-     * @returns {any}
-     */
-    visitDecimal(node) {
-        throw new Error('Metodo visitDecimal no implementado');
-    }
-    
-
-    /**
-     * @param {Cadena} node
-     * @returns {any}
-     */
-    visitCadena(node) {
-        throw new Error('Metodo visitCadena no implementado');
-    }
-    
-
-    /**
-     * @param {Booleano} node
-     * @returns {any}
-     */
-    visitBooleano(node) {
-        throw new Error('Metodo visitBooleano no implementado');
-    }
-    
-
-    /**
-     * @param {Char} node
-     * @returns {any}
-     */
-    visitChar(node) {
-        throw new Error('Metodo visitChar no implementado');
+    visitDatoPrimitivo(node) {
+        throw new Error('Metodo visitDatoPrimitivo no implementado');
     }
     
 
@@ -181,6 +136,15 @@ export class BaseVisitor {
      */
     visitReferenciaVariable(node) {
         throw new Error('Metodo visitReferenciaVariable no implementado');
+    }
+    
+
+    /**
+     * @param {Asignacion} node
+     * @returns {any}
+     */
+    visitAsignacion(node) {
+        throw new Error('Metodo visitAsignacion no implementado');
     }
     
 

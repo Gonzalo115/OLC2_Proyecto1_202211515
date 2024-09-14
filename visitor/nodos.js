@@ -263,45 +263,28 @@ export class Agrupacion extends Expresion {
     }
 }
     
-export class Entero extends Expresion {
+export class DatoPrimitivo extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {number} options.valor Valor del numero
+    * @param {any} options.valor Valor del numero
+ * @param {string} options.tipo Expresion derecha de la operacion
     */
-    constructor({ valor }) {
+    constructor({ valor, tipo }) {
         super();
         
         /**
          * Valor del numero
-         * @type {number}
+         * @type {any}
         */
         this.valor = valor;
 
-    }
 
-    /**
-     * @param {BaseVisitor} visitor
-     */
-    accept(visitor) {
-        return visitor.visitEntero(this);
-    }
-}
-    
-export class Decimal extends Expresion {
-
-    /**
-    * @param {Object} options
-    * @param {decimal} options.valor Valor del numero
-    */
-    constructor({ valor }) {
-        super();
-        
         /**
-         * Valor del numero
-         * @type {decimal}
+         * Expresion derecha de la operacion
+         * @type {string}
         */
-        this.valor = valor;
+        this.tipo = tipo;
 
     }
 
@@ -309,82 +292,7 @@ export class Decimal extends Expresion {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitDecimal(this);
-    }
-}
-    
-export class Cadena extends Expresion {
-
-    /**
-    * @param {Object} options
-    * @param {cadena} options.valor Contenido de una string
-    */
-    constructor({ valor }) {
-        super();
-        
-        /**
-         * Contenido de una string
-         * @type {cadena}
-        */
-        this.valor = valor;
-
-    }
-
-    /**
-     * @param {BaseVisitor} visitor
-     */
-    accept(visitor) {
-        return visitor.visitCadena(this);
-    }
-}
-    
-export class Booleano extends Expresion {
-
-    /**
-    * @param {Object} options
-    * @param {bool} options.valor Valor booleano
-    */
-    constructor({ valor }) {
-        super();
-        
-        /**
-         * Valor booleano
-         * @type {bool}
-        */
-        this.valor = valor;
-
-    }
-
-    /**
-     * @param {BaseVisitor} visitor
-     */
-    accept(visitor) {
-        return visitor.visitBooleano(this);
-    }
-}
-    
-export class Char extends Expresion {
-
-    /**
-    * @param {Object} options
-    * @param {caracter} options.valor Valor de un caracter
-    */
-    constructor({ valor }) {
-        super();
-        
-        /**
-         * Valor de un caracter
-         * @type {caracter}
-        */
-        this.valor = valor;
-
-    }
-
-    /**
-     * @param {BaseVisitor} visitor
-     */
-    accept(visitor) {
-        return visitor.visitChar(this);
+        return visitor.visitDatoPrimitivo(this);
     }
 }
     
@@ -392,12 +300,20 @@ export class DeclaracionVariable extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {string} options.id Identificador de la variable
- * @param {Expresion} options.exp Expresion de la variable
+    * @param {any} options.tipo Tipo de la variable
+ * @param {string} options.id Identificador de la variable
+ * @param {Expresion|undefined} options.exp Expresion de la variable
     */
-    constructor({ id, exp }) {
+    constructor({ tipo, id, exp }) {
         super();
         
+        /**
+         * Tipo de la variable
+         * @type {any}
+        */
+        this.tipo = tipo;
+
+
         /**
          * Identificador de la variable
          * @type {string}
@@ -407,7 +323,7 @@ export class DeclaracionVariable extends Expresion {
 
         /**
          * Expresion de la variable
-         * @type {Expresion}
+         * @type {Expresion|undefined}
         */
         this.exp = exp;
 
@@ -443,6 +359,39 @@ export class ReferenciaVariable extends Expresion {
      */
     accept(visitor) {
         return visitor.visitReferenciaVariable(this);
+    }
+}
+    
+export class Asignacion extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la variable
+ * @param {Expresion} options.asgn Expresion a asignar
+    */
+    constructor({ id, asgn }) {
+        super();
+        
+        /**
+         * Identificador de la variable
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Expresion a asignar
+         * @type {Expresion}
+        */
+        this.asgn = asgn;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAsignacion(this);
     }
 }
     
@@ -496,4 +445,4 @@ export class ExpresionStmt extends Expresion {
     }
 }
     
-export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, Entero, Decimal, Cadena, Booleano, Char, DeclaracionVariable, ReferenciaVariable, Println, ExpresionStmt }
+export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, DatoPrimitivo, DeclaracionVariable, ReferenciaVariable, Asignacion, Println, ExpresionStmt }

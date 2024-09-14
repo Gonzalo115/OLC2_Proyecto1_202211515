@@ -8,13 +8,10 @@
       'relacion':             nodos.Relacional,
       'logico':               nodos.Logico,
       'agrupacion':           nodos.Agrupacion,
-      'entero':               nodos.Entero,
-      'decimal':              nodos.Decimal,
-      'cadena':               nodos.Cadena,
-      'bool':                 nodos.Booleano,
-      'char':                 nodos.Char,
+      'dato':                 nodos.DatoPrimitivo,
       'declaracionVariable':  nodos.DeclaracionVariable,
       'referenciaVariable':   nodos.ReferenciaVariable,
+      'asignacion':           nodos.Asignacion,
       'println':              nodos.Println,
       'expresionStmt':        nodos.ExpresionStmt,
     }
@@ -30,13 +27,18 @@ programa = _ dcl:Declaracion* _ { return dcl }
 Declaracion = _ dcl:DeclaracionVar _ { return dcl }
             / _ stmt:Stmt _ { return stmt }
 
-DeclaracionVar = tipo:Tipo _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('declaracionVariable', { id, exp }) }  
-               // tipo:Tipo _ id:Identificador _  ";"                      { return crearNodo('declaracionVariable', { id, exp:null }) } 
-
+DeclaracionVar =  tipo:Tipo _ id:Identificador
+                exp:(
+                  _"=" _ exp:Expresion _  { return exp } 
+                )? ";" { return crearNodo('declaracionVariable', { tipo, id, exp }) } 
+                
 Stmt = "System.out.println" _ "(" _ exp:Expresion _ ")" _ ";" { return crearNodo('println', { exp }) }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
 
-Expresion = Or
+Expresion = Asignacion
+
+Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn }) }
+          / Or
 
 Or = exp_left:And expansion:(
   _ operacion:("||") _ exp_right:And { return { tipo: operacion, exp_right } }
@@ -113,11 +115,11 @@ Multiplicacion = exp_left:Unaria expansion:(
 Unaria =_ operacion:("-" / "!") _ num:Nativo _ { return crearNodo('OperacionU', { operacion: operacion, exp_unica: num }) }
       / Nativo
 
-Nativo = [0-9]+("." [0-9]+) { return crearNodo('decimal', { valor: parseFloat(text()) }) }
-      /[0-9]+             { return crearNodo('entero', { valor: parseInt(text(), 10) }) } 
-      /("true"/"false")                               { return crearNodo('bool',    { valor: text() === "true" })}
-      /'"' chars:( [^\\"\n\r] / escapeSequence)* '"'  { return crearNodo('cadena',  { valor: chars.join('')});}
-      /"'" chars:[\x00-\uffff] "'"                        { return crearNodo('char',    { valor: chars }); }
+Nativo = [0-9]+("." [0-9]+)                           { return crearNodo('dato', { valor: parseFloat(text()), tipo: "float"}) }
+      /[0-9]+                                         { return crearNodo('dato', { valor: parseInt(text(), 10), tipo: "int"}) } 
+      /("true"/"false")                               { return crearNodo('dato',    { valor: text() === "true", tipo:"boolean"})}
+      /'"' chars:( [^\\"\n\r] / escapeSequence)* '"'  { return crearNodo('dato',  { valor: chars.join(''), tipo: "string"});}
+      /"'" chars:[\x00-\uffff] "'"                    { return crearNodo('dato',    { valor: chars, tipo: "char"}); }
       / "(" _ exp:Expresion _ ")"                     { return crearNodo('agrupacion', { exp }) }
       / id:Identificador                              { return crearNodo('referenciaVariable',  { id }) }
 
