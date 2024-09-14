@@ -309,7 +309,7 @@ export class InterpreterVisitor extends BaseVisitor {
     * @type {BaseVisitor['visitDeclaracionVariable']}
   */
   visitDeclaracionVariable(node) {
-  
+
     const tipoVaribale = node.tipo;
     const nombreVariable = node.id;
     var valorVariable
@@ -473,6 +473,42 @@ export class InterpreterVisitor extends BaseVisitor {
   }
 
   /**
+ * @type {BaseVisitor['visitIncremento']}
+ */
+  visitIncremento(node) {
+    const valor = node.valor.accept(this);
+    if (valor instanceof Errores) {
+      return valor;
+    }
+
+    const err = this.entornoActual.incrementoVariable(node.id, valor);
+
+    if (err instanceof Errores) {
+      return err
+    }
+
+    return valor;
+  }
+
+  /**
+ * @type {BaseVisitor['visitDecremento']}
+ */
+  visitDecremento(node) {
+    const valor = node.valor.accept(this);
+    if (valor instanceof Errores) {
+      return valor;
+    }
+
+    const err = this.entornoActual.decrementoVariable(node.id, valor);
+
+    if (err instanceof Errores) {
+      return err
+    }
+
+    return valor;
+  }
+
+  /**
     * @type {BaseVisitor['visitPrintln']}
   */
   visitPrintln(node) {
@@ -483,6 +519,26 @@ export class InterpreterVisitor extends BaseVisitor {
     }
 
     this.salida += valor.valor + '\n';
+  }
+
+  /**
+    * @type {BaseVisitor['visitPrintln']}
+  */
+
+  visitExpresionPrintln(node) {
+    const num_left = node.exp_left.accept(this);
+    const num_right = node.exp_right.accept(this);
+
+    if (num_left instanceof Errores) {
+      return num_left
+    }
+    if (num_right instanceof Errores) {
+      return num_right
+    }
+    
+    const nodoS = new DatoPrimitivo({ valor: String(num_left.valor) + String(num_right.valor), tipo: "string" })
+    nodoS.location = node.location
+    return nodoS;
   }
 
   /**

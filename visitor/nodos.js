@@ -395,6 +395,72 @@ export class Asignacion extends Expresion {
     }
 }
     
+export class Incremento extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la variable
+ * @param {Expresion} options.valor Expresion a asignar
+    */
+    constructor({ id, valor }) {
+        super();
+        
+        /**
+         * Identificador de la variable
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Expresion a asignar
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitIncremento(this);
+    }
+}
+    
+export class Decremento extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la variable
+ * @param {Expresion} options.valor Expresion a asignar
+    */
+    constructor({ id, valor }) {
+        super();
+        
+        /**
+         * Identificador de la variable
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Expresion a asignar
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDecremento(this);
+    }
+}
+    
 export class Println extends Expresion {
 
     /**
@@ -417,6 +483,39 @@ export class Println extends Expresion {
      */
     accept(visitor) {
         return visitor.visitPrintln(this);
+    }
+}
+    
+export class ExpresionPrintln extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.exp_left Expresion izquierda de la concatenacion
+ * @param {Expresion} options.exp_right Expresion derecha de la concatenacion
+    */
+    constructor({ exp_left, exp_right }) {
+        super();
+        
+        /**
+         * Expresion izquierda de la concatenacion
+         * @type {Expresion}
+        */
+        this.exp_left = exp_left;
+
+
+        /**
+         * Expresion derecha de la concatenacion
+         * @type {Expresion}
+        */
+        this.exp_right = exp_right;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitExpresionPrintln(this);
     }
 }
     
@@ -445,4 +544,4 @@ export class ExpresionStmt extends Expresion {
     }
 }
     
-export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, DatoPrimitivo, DeclaracionVariable, ReferenciaVariable, Asignacion, Println, ExpresionStmt }
+export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, DatoPrimitivo, DeclaracionVariable, ReferenciaVariable, Asignacion, Incremento, Decremento, Println, ExpresionPrintln, ExpresionStmt }

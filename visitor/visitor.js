@@ -34,7 +34,16 @@
  * @typedef {import('./nodos.js').Asignacion} Asignacion
 
 
+ * @typedef {import('./nodos.js').Incremento} Incremento
+
+
+ * @typedef {import('./nodos.js').Decremento} Decremento
+
+
  * @typedef {import('./nodos.js').Println} Println
+
+
+ * @typedef {import('./nodos.js').ExpresionPrintln} ExpresionPrintln
 
 
  * @typedef {import('./nodos.js').ExpresionStmt} ExpresionStmt
@@ -149,11 +158,38 @@ export class BaseVisitor {
     
 
     /**
+     * @param {Incremento} node
+     * @returns {any}
+     */
+    visitIncremento(node) {
+        throw new Error('Metodo visitIncremento no implementado');
+    }
+    
+
+    /**
+     * @param {Decremento} node
+     * @returns {any}
+     */
+    visitDecremento(node) {
+        throw new Error('Metodo visitDecremento no implementado');
+    }
+    
+
+    /**
      * @param {Println} node
      * @returns {any}
      */
     visitPrintln(node) {
         throw new Error('Metodo visitPrintln no implementado');
+    }
+    
+
+    /**
+     * @param {ExpresionPrintln} node
+     * @returns {any}
+     */
+    visitExpresionPrintln(node) {
+        throw new Error('Metodo visitExpresionPrintln no implementado');
     }
     
 

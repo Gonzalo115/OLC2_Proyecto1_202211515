@@ -12,7 +12,10 @@
       'declaracionVariable':  nodos.DeclaracionVariable,
       'referenciaVariable':   nodos.ReferenciaVariable,
       'asignacion':           nodos.Asignacion,
+      'incremento':           nodos.Incremento,
+      'decremento':           nodos.Decremento,
       'println':              nodos.Println,
+      'expresionPrintln':     nodos.ExpresionPrintln,
       'expresionStmt':        nodos.ExpresionStmt,
     }
 
@@ -32,13 +35,22 @@ DeclaracionVar =  tipo:Tipo _ id:Identificador
                   _"=" _ exp:Expresion _  { return exp } 
                 )? ";" { return crearNodo('declaracionVariable', { tipo, id, exp }) } 
                 
-Stmt = "System.out.println" _ "(" _ exp:Expresion _ ")" _ ";" { return crearNodo('println', { exp }) }
+Stmt = "System.out.println" _ "(" _ exp:ExpresionPrintln _ ")" _ ";" { return crearNodo('println', { exp }) }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
+
+
+ExpresionPrintln = exp_left:Expresion _ "," _ exp_right:ExpresionPrintln { return crearNodo('expresionPrintln', { exp_left, exp_right }) }
+                / Expresion
 
 Expresion = Asignacion
 
 Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn }) }
-          / Or
+          / AsignacionOp
+
+AsignacionOp = id:Identificador _ "+=" _ valor:Asignacion { return crearNodo('incremento', { id, valor }) }
+            /  id:Identificador _ "-=" _ valor:Asignacion { return crearNodo('decremento', { id, valor }) }
+            / Or
+
 
 Or = exp_left:And expansion:(
   _ operacion:("||") _ exp_right:And { return { tipo: operacion, exp_right } }

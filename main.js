@@ -15,8 +15,6 @@ btnAnalizar.addEventListener('click', () => {
     console.log({ sentencias })
     for (let i = 0; i < sentencias.length; i++) {
         var error = sentencias[i].accept(interprete)
-        // console.log(sentencias[i])
-        // console.log(error)
         if (error instanceof Errores) {
             console.log(error.toString());
         }
