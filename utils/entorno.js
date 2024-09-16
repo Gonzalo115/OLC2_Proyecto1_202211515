@@ -93,7 +93,7 @@ export class Entorno {
         }
 
         if (!valorActual && this.entornoAnterior) {
-            this.entornoAnterior.assignVariable(nombre, valor);
+            this.entornoAnterior.incrementoVariable(nombre, valor);
             return;
         }
         return new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)
@@ -123,7 +123,7 @@ export class Entorno {
         }
 
         if (!valorActual && this.entornoAnterior) {
-            this.entornoAnterior.assignVariable(nombre, valor);
+            this.entornoAnterior.decrementoVariable(nombre, valor);
             return;
         }
         return new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)

@@ -48,6 +48,36 @@
 
  * @typedef {import('./nodos.js').ExpresionStmt} ExpresionStmt
 
+
+ * @typedef {import('./nodos.js').Bloque} Bloque
+
+
+ * @typedef {import('./nodos.js').Ternario} Ternario
+
+
+ * @typedef {import('./nodos.js').If} If
+
+
+ * @typedef {import('./nodos.js').Switch} Switch
+
+
+ * @typedef {import('./nodos.js').Caso} Caso
+
+
+ * @typedef {import('./nodos.js').While} While
+
+
+ * @typedef {import('./nodos.js').For} For
+
+
+ * @typedef {import('./nodos.js').Break} Break
+
+
+ * @typedef {import('./nodos.js').Continue} Continue
+
+
+ * @typedef {import('./nodos.js').Return} Return
+
  */
 
 
@@ -199,6 +229,96 @@ export class BaseVisitor {
      */
     visitExpresionStmt(node) {
         throw new Error('Metodo visitExpresionStmt no implementado');
+    }
+    
+
+    /**
+     * @param {Bloque} node
+     * @returns {any}
+     */
+    visitBloque(node) {
+        throw new Error('Metodo visitBloque no implementado');
+    }
+    
+
+    /**
+     * @param {Ternario} node
+     * @returns {any}
+     */
+    visitTernario(node) {
+        throw new Error('Metodo visitTernario no implementado');
+    }
+    
+
+    /**
+     * @param {If} node
+     * @returns {any}
+     */
+    visitIf(node) {
+        throw new Error('Metodo visitIf no implementado');
+    }
+    
+
+    /**
+     * @param {Switch} node
+     * @returns {any}
+     */
+    visitSwitch(node) {
+        throw new Error('Metodo visitSwitch no implementado');
+    }
+    
+
+    /**
+     * @param {Caso} node
+     * @returns {any}
+     */
+    visitCaso(node) {
+        throw new Error('Metodo visitCaso no implementado');
+    }
+    
+
+    /**
+     * @param {While} node
+     * @returns {any}
+     */
+    visitWhile(node) {
+        throw new Error('Metodo visitWhile no implementado');
+    }
+    
+
+    /**
+     * @param {For} node
+     * @returns {any}
+     */
+    visitFor(node) {
+        throw new Error('Metodo visitFor no implementado');
+    }
+    
+
+    /**
+     * @param {Break} node
+     * @returns {any}
+     */
+    visitBreak(node) {
+        throw new Error('Metodo visitBreak no implementado');
+    }
+    
+
+    /**
+     * @param {Continue} node
+     * @returns {any}
+     */
+    visitContinue(node) {
+        throw new Error('Metodo visitContinue no implementado');
+    }
+    
+
+    /**
+     * @param {Return} node
+     * @returns {any}
+     */
+    visitReturn(node) {
+        throw new Error('Metodo visitReturn no implementado');
     }
     
 }

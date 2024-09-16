@@ -2,6 +2,9 @@ import { Entorno } from "../utils/entorno.js";
 import { Errores } from "../utils/errores.js";
 import { DatoPrimitivo } from "./nodos.js";
 import { BaseVisitor } from "./visitor.js";
+import nodos, { Expresion } from './nodos.js'
+import { BreakException, ContinueException, ReturnException } from "./transferencia.js";
+
 
 
 export class InterpreterVisitor extends BaseVisitor {
@@ -10,6 +13,10 @@ export class InterpreterVisitor extends BaseVisitor {
     super();
     this.entornoActual = new Entorno();
     this.salida = '';
+    /**
+     * @type {Expresion | null}
+    */
+    this.prevContinue = null;
   }
 
   /**
@@ -295,7 +302,11 @@ export class InterpreterVisitor extends BaseVisitor {
     * @type {BaseVisitor['visitAgrupacion']}
   */
   visitAgrupacion(node) {
-    return node.exp.accept(this);
+    const res = node.exp.accept(this);
+    if (res instanceof Errores) {
+      return res
+    }
+    return res
   }
 
   /**
@@ -451,7 +462,11 @@ export class InterpreterVisitor extends BaseVisitor {
   */
   visitReferenciaVariable(node) {
     const nombreVariable = node.id;
-    return this.entornoActual.getVariable(nombreVariable, node.location.start);
+    const res = this.entornoActual.getVariable(nombreVariable, node.location.start);
+    if (res instanceof Errores) {
+      return res
+    }
+    return res
   }
 
   /**
@@ -535,7 +550,7 @@ export class InterpreterVisitor extends BaseVisitor {
     if (num_right instanceof Errores) {
       return num_right
     }
-    
+
     const nodoS = new DatoPrimitivo({ valor: String(num_left.valor) + String(num_right.valor), tipo: "string" })
     nodoS.location = node.location
     return nodoS;
@@ -550,5 +565,224 @@ export class InterpreterVisitor extends BaseVisitor {
       return err
     }
   }
+
+  /**
+ * @type {BaseVisitor['visitBloque']}
+ */
+  visitBloque(node) {
+    const entornoAnterior = this.entornoActual;
+    this.entornoActual = new Entorno(entornoAnterior);
+
+    for (let i = 0; i < node.dcls.length; i++) {
+      var res = node.dcls[i].accept(this);
+      if (res instanceof Errores) {
+        this.entornoActual = entornoAnterior;
+        return res
+      }
+    }
+    this.entornoActual = entornoAnterior;
+    return
+  }
+
+  /**
+   * @type {BaseVisitor['visitTernario']}
+   */
+  visitTernario(node) {
+    const cond = node.cond.accept(this)
+    if (cond instanceof Errores){
+      return cond
+    }
+
+    if (!(cond instanceof DatoPrimitivo) && cond.tipo != "boolean"){
+      return new Errores("La condicion del ", node.location.start.line, node.location.start.column)
+    }
+
+    if (cond.dato == "true"){
+      const expTrue = node.expTrue.accept(this)
+      if (expTrue instanceof Errores){
+        return expTrue
+      }
+      return expTrue
+    }else {
+      const expFalse = node.expFalse.accept(this)
+      if (expFalse instanceof Errores){
+        return expFalse
+      }
+      return expFalse
+    }
+  }
+
+  /**
+   * @type {BaseVisitor['visitIf']}
+   */
+  visitIf(node) {
+    const cond = node.cond.accept(this);
+    if (cond.tipo != "boolean") {
+      return new Errores("La condicion del if no es un booleano", node.location.start.line, node.location.start.column)
+
+    }
+
+    if (cond.valor) {
+      var res = node.stmtTrue.accept(this);
+      if (res instanceof Errores) {
+        return res;
+      }
+      return;
+    }
+
+    if (node.stmtFalse) {
+      var res = node.stmtFalse.accept(this);
+      if (res instanceof Errores) {
+        return res;
+      }
+    }
+
+  }
+
+  /**
+   * @type {BaseVisitor['visitSwitch']}
+   */
+  visitSwitch(node) {
+    const cond = node.exp.accept(this)
+
+    if (cond instanceof Errores) {
+      return cond;
+    }
+
+    try {
+      for (let i = 0; i < node.casos.length; i++) {
+        if (cond.valor === node.casos[i].exp.accept(this).valor) {
+          var err = node.casos[i].accept(this);
+          if (err instanceof Errores) {
+            return err
+          }
+        }
+      }
+
+      if (node.stmtDefault) {
+        var res = node.stmtDefault.accept(this);
+        if (res instanceof Errores) {
+          return res;
+        }
+      }
+    } catch (error) {
+
+      if (error instanceof BreakException) {
+        return
+      }
+
+      throw error;
+
+    }
+
+  }
+
+  /**
+   * @type {BaseVisitor['visitCaso']}
+   */
+  visitCaso(node) {
+    const err = node.stmt.accept(this)
+    if (err instanceof Errores) {
+      return err
+    }
+  }
+
+  /**
+   * @type {BaseVisitor['visitWhile']}
+   */
+  visitWhile(node) {
+    const cond = node.cond.accept(this);
+
+    if (cond instanceof Errores) {
+      return cond;
+    }
+
+    if (cond.tipo != "boolean") {
+      return new Errores("La condicion del while no es un booleano", node.location.start.line, node.location.start.column)
+    }
+
+    const entornoConElQueEmpezo = this.entornoActual;
+    try {
+      while (node.cond.accept(this).valor) {
+        const res = node.stmt.accept(this);
+        if (res instanceof Errores) {
+          this.entornoActual = entornoConElQueEmpezo
+          return res;
+        }
+      }
+    } catch (error) {
+      this.entornoActual = entornoConElQueEmpezo;
+
+      if (error instanceof BreakException) {
+        return
+      }
+
+      if (error instanceof ContinueException) {
+        return this.visitWhile(node);
+      }
+
+      throw error;
+
+    }
+  }
+
+  /**
+   * @type {BaseVisitor['visitFor']}
+   */
+  visitFor(node) {
+    // this.prevContinue = node.inc;
+    const incrementoAnterior = this.prevContinue;
+    this.prevContinue = node.inc;
+
+    const forTraducido = new nodos.Bloque({
+      dcls: [
+        node.init,
+        new nodos.While({
+          cond: node.cond,
+          stmt: new nodos.Bloque({
+            dcls: [
+              node.stmt,
+              node.inc
+            ]
+          })
+        })
+      ]
+    })
+
+    forTraducido.accept(this);
+
+    this.prevContinue = incrementoAnterior;
+  }
+
+  /**
+   * @type {BaseVisitor['visitBreak']}
+   */
+  visitBreak(node) {
+    throw new BreakException();
+  }
+
+  /**
+   * @type {BaseVisitor['visitContinue']}
+   */
+  visitContinue(node) {
+    if (this.prevContinue) {
+      this.prevContinue.accept(this);
+    }
+
+    throw new ContinueException();
+  }
+
+
+  /**
+   * @type {BaseVisitor['visitReturn']}
+   */
+  visitReturn(node) {
+    let valor = null
+    if (node.exp) {
+      valor = node.exp.accept(this);
+    }
+    throw new ReturnException(valor);
+  }
+
 
 }

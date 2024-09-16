@@ -544,4 +544,330 @@ export class ExpresionStmt extends Expresion {
     }
 }
     
-export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, DatoPrimitivo, DeclaracionVariable, ReferenciaVariable, Asignacion, Incremento, Decremento, Println, ExpresionPrintln, ExpresionStmt }
+export class Bloque extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion[]} options.dcls Sentencias del bloque
+    */
+    constructor({ dcls }) {
+        super();
+        
+        /**
+         * Sentencias del bloque
+         * @type {Expresion[]}
+        */
+        this.dcls = dcls;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitBloque(this);
+    }
+}
+    
+export class Ternario extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.cond Condicion del if
+ * @param {Expresion} options.expTrue Si la condicion es verdadera
+ * @param {Expresion} options.expFalse Si la condicion es falsa
+    */
+    constructor({ cond, expTrue, expFalse }) {
+        super();
+        
+        /**
+         * Condicion del if
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Si la condicion es verdadera
+         * @type {Expresion}
+        */
+        this.expTrue = expTrue;
+
+
+        /**
+         * Si la condicion es falsa
+         * @type {Expresion}
+        */
+        this.expFalse = expFalse;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitTernario(this);
+    }
+}
+    
+export class If extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.cond Condicion del if
+ * @param {Expresion} options.stmtTrue Cuerpo del if
+ * @param {Expresion|undefined} options.stmtFalse Cuerpo del else
+    */
+    constructor({ cond, stmtTrue, stmtFalse }) {
+        super();
+        
+        /**
+         * Condicion del if
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Cuerpo del if
+         * @type {Expresion}
+        */
+        this.stmtTrue = stmtTrue;
+
+
+        /**
+         * Cuerpo del else
+         * @type {Expresion|undefined}
+        */
+        this.stmtFalse = stmtFalse;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitIf(this);
+    }
+}
+    
+export class Switch extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.exp Expresion a comparar
+ * @param {Casos[]} options.casos Listado de Casos a evaluar
+ * @param {Expresion|undefined} options.stmtDefault Instruciones a evaluar
+    */
+    constructor({ exp, casos, stmtDefault }) {
+        super();
+        
+        /**
+         * Expresion a comparar
+         * @type {Expresion}
+        */
+        this.exp = exp;
+
+
+        /**
+         * Listado de Casos a evaluar
+         * @type {Casos[]}
+        */
+        this.casos = casos;
+
+
+        /**
+         * Instruciones a evaluar
+         * @type {Expresion|undefined}
+        */
+        this.stmtDefault = stmtDefault;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitSwitch(this);
+    }
+}
+    
+export class Caso extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.exp Expresion a comparar
+ * @param {Expresion} options.stmt Cuerpo del Caso
+    */
+    constructor({ exp, stmt }) {
+        super();
+        
+        /**
+         * Expresion a comparar
+         * @type {Expresion}
+        */
+        this.exp = exp;
+
+
+        /**
+         * Cuerpo del Caso
+         * @type {Expresion}
+        */
+        this.stmt = stmt;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitCaso(this);
+    }
+}
+    
+export class While extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.cond Condicion del while
+ * @param {Expresion} options.stmt Cuerpo del while
+    */
+    constructor({ cond, stmt }) {
+        super();
+        
+        /**
+         * Condicion del while
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Cuerpo del while
+         * @type {Expresion}
+        */
+        this.stmt = stmt;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitWhile(this);
+    }
+}
+    
+export class For extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.init Inicializacion del for
+ * @param {Expresion} options.cond Condicion del for
+ * @param {Expresion} options.inc Incremento del for
+ * @param {Expresion} options.stmt Cuerpo del for
+    */
+    constructor({ init, cond, inc, stmt }) {
+        super();
+        
+        /**
+         * Inicializacion del for
+         * @type {Expresion}
+        */
+        this.init = init;
+
+
+        /**
+         * Condicion del for
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Incremento del for
+         * @type {Expresion}
+        */
+        this.inc = inc;
+
+
+        /**
+         * Cuerpo del for
+         * @type {Expresion}
+        */
+        this.stmt = stmt;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitFor(this);
+    }
+}
+    
+export class Break extends Expresion {
+
+    /**
+    * @param {Object} options
+    * 
+    */
+    constructor() {
+        super();
+        
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitBreak(this);
+    }
+}
+    
+export class Continue extends Expresion {
+
+    /**
+    * @param {Object} options
+    * 
+    */
+    constructor() {
+        super();
+        
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitContinue(this);
+    }
+}
+    
+export class Return extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion|undefined} options.exp Expresion a retornar
+    */
+    constructor({ exp }) {
+        super();
+        
+        /**
+         * Expresion a retornar
+         * @type {Expresion|undefined}
+        */
+        this.exp = exp;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitReturn(this);
+    }
+}
+    
+export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, DatoPrimitivo, DeclaracionVariable, ReferenciaVariable, Asignacion, Incremento, Decremento, Println, ExpresionPrintln, ExpresionStmt, Bloque, Ternario, If, Switch, Caso, While, For, Break, Continue, Return }

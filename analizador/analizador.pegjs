@@ -17,6 +17,16 @@
       'println':              nodos.Println,
       'expresionPrintln':     nodos.ExpresionPrintln,
       'expresionStmt':        nodos.ExpresionStmt,
+      'bloque':               nodos.Bloque,
+      'ternario':             nodos.Ternario,
+      'if':                   nodos.If,
+      'switch':               nodos.Switch,
+      'casos':                nodos.Caso,
+      'while':                nodos.While,
+      'for':                  nodos.For,
+      'break':                nodos.Break,
+      'continue':             nodos.Continue,
+      'return':               nodos.Return
     }
 
     const nodo = new tipos[tipoNodo](props)
@@ -36,21 +46,54 @@ DeclaracionVar =  tipo:Tipo _ id:Identificador
                 )? ";" { return crearNodo('declaracionVariable', { tipo, id, exp }) } 
                 
 Stmt = "System.out.println" _ "(" _ exp:ExpresionPrintln _ ")" _ ";" { return crearNodo('println', { exp }) }
+    / "{" _ dcls:Declaracion* _ "}" { return crearNodo('bloque', { dcls }) }
+    / "if" _ "(" _ cond:Expresion _ ")" _ stmtTrue:Stmt 
+      stmtFalse:(
+        _ "else" _ stmtFalse:Stmt { return stmtFalse } 
+      )? { return crearNodo('if', { cond, stmtTrue, stmtFalse }) }
+    / "switch" _ "(" _ exp:Expresion _ ")" _ "{" _ casos:Casos* _ 
+      stmtDefault:(
+        _ "default" _ ":" _ stmtDefault:BloqueAux { return stmtDefault}
+      )? _ "}" _ { return crearNodo('switch', { exp, casos, stmtDefault  }) }
+    / "while" _ "(" _ cond:Expresion _ ")" _ stmt:Stmt { return crearNodo('while', { cond, stmt }) }
+    / "for" _ "(" _ init:ForInit _ cond:Expresion _ ";" _ inc:Expresion _ ")" _ stmt:Stmt {
+      return crearNodo('for', { init, cond, inc, stmt })
+    }
+    / "break" _ ";" { return crearNodo('break') }
+    / "continue" _ ";" { return crearNodo('continue') }
+    / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
 
+Casos = _ "case" _ exp:Expresion _ ":" _ stmt:BloqueAux _ { return crearNodo('casos', {exp, stmt}) }
+
+BloqueAux = _ dcls:Declaracion* _ { return crearNodo('bloque', { dcls }) }
+
+ForInit = dcl:DeclaracionVar { return dcl }
+        / exp:Expresion _ ";" { return exp }
+        / ";" { return null }
 
 ExpresionPrintln = exp_left:Expresion _ "," _ exp_right:ExpresionPrintln { return crearNodo('expresionPrintln', { exp_left, exp_right }) }
                 / Expresion
 
-Expresion = Asignacion
+Expresion = Ternario
+
+Ternario = _ cond:Asignacion _ "?" _ expTrue:Asignacion _ ":" _ expFalse:Asignacion _ { return crearNodo('ternario', { cond, expTrue, expFalse } ) }
+          /Asignacion
 
 Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn }) }
           / AsignacionOp
 
 AsignacionOp = id:Identificador _ "+=" _ valor:Asignacion { return crearNodo('incremento', { id, valor }) }
             /  id:Identificador _ "-=" _ valor:Asignacion { return crearNodo('decremento', { id, valor }) }
+            /  id:Identificador _ "++" _ 
+             valor:(
+              _ { return crearNodo('dato', { valor: 1, tipo: "int"}) } 
+             ) _ { return crearNodo('incremento', { id, valor }) }       
+            /  id:Identificador _ "--" _ 
+             valor:(
+              _ { return crearNodo('dato', { valor: -1, tipo: "int"}) } 
+             ) _ { return crearNodo('incremento', { id, valor }) }              
             / Or
-
 
 Or = exp_left:And expansion:(
   _ operacion:("||") _ exp_right:And { return { tipo: operacion, exp_right } }
@@ -124,7 +167,7 @@ Multiplicacion = exp_left:Unaria expansion:(
     )
 }
 
-Unaria =_ operacion:("-" / "!") _ num:Nativo _ { return crearNodo('OperacionU', { operacion: operacion, exp_unica: num }) }
+Unaria =_ operacion:("-" / "!") _ num:Unaria _ { return crearNodo('OperacionU', { operacion: operacion, exp_unica: num }) }
       / Nativo
 
 Nativo = [0-9]+("." [0-9]+)                           { return crearNodo('dato', { valor: parseFloat(text()), tipo: "float"}) }
@@ -156,4 +199,8 @@ Tipo  = "int"     { return text(); }
 // Identificador
 Identificador = [a-zA-Z][a-zA-Z0-9]* { return text() }
 
-_ = [ \t\n\r]*
+_ = ([ \t\n\r] / Comentarios)* 
+
+
+Comentarios = "//" (![\n] .)*
+            / "/*" (!("*/") .)* "*/"
