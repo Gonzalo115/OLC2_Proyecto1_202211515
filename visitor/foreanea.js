@@ -2,6 +2,8 @@ import { Entorno } from "../utils/entorno.js";
 import { Invocable } from "./invocable.js";
 import { FuncDcl } from "./nodos.js";
 import { ReturnException } from "./transferencia.js";
+import { ContinueException } from "./transferencia.js";
+import { BreakException } from "./transferencia.js";
 import { Errores } from "../utils/errores.js";
 
 
@@ -22,7 +24,7 @@ export class FuncionForanea extends Invocable {
     }
 
     aridad(args) {
-        
+
         if (this.nodo.params.length !== args.length) {
             return new Errores("La cantidad de argumentos no coicide con la cantidad de parametros necesarios", this.nodo.location.start.line, this.nodo.location.start.column)
         }
@@ -57,12 +59,37 @@ export class FuncionForanea extends Invocable {
         interprete.entornoActual = entornoNuevo;
 
         try {
-            this.nodo.bloque.accept(interprete);
+            const err = this.nodo.bloque.accept(interprete);
+            if (err instanceof Errores){
+                return err
+            }
         } catch (error) {
             interprete.entornoActual = entornoAntesDeLaLlamada;
 
             if (error instanceof ReturnException) {
+
+                if (this.nodo.tipo === "void"){
+
+                    if(error.value != null){
+                        return new Errores("se esta tratando de devolver un valor en un metodo", this.nodo.location.start.line, this.nodo.location.start.column);
+                    }
+                    return null
+                }
+
+                if (this.nodo.tipo !== error.value.tipo){
+                    return new Errores("se esta tratando de devolver un dato que su tipo de dato es diferente que el de la funcion", this.nodo.location.start.line, this.nodo.location.start.column);
+                }
+
                 return error.value
+            }
+
+
+            if (error instanceof ContinueException){
+                return new Errores("hay un continuo definido fuera de una sencia de control", this.nodo.location.start.line, this.nodo.location.start.column);
+            }
+
+            if (error instanceof BreakException){
+                return new Errores("hay un Break definido fuera de una sencia de control", this.nodo.location.start.line, this.nodo.location.start.column);
             }
 
             throw error;
