@@ -7,31 +7,40 @@ const editor = document.getElementById('textAreaEditor')
 const consola = document.getElementById('textAreaConsola')
 const btnAnalizar = document.getElementById('analizar')
 
-btnAnalizar.addEventListener('click', () => {
-    const codigoFuente = editor.value
+
+let i = 0;
 
 
-    try {
-
-
-        const sentencias = parse(codigoFuente)
-        const interprete = new InterpreterVisitor()
-        
-        console.log({ sentencias })
-        for (let i = 0; i < sentencias.length; i++) {
-            var error = sentencias[i].accept(interprete)
-            if (error instanceof Errores) {
-                console.log(error.toString());
-            }
+// Definición de la función de análisis semántico
+function analisisSemantico(sentencias, interprete) {
+    try{
+        while (i < sentencias.length){
+            sentencias[i].accept(interprete);
+            i ++;
         }
-        consola.value = interprete.salida
+        consola.value = interprete.salida;
     } catch (error) {
-        console.log(error)
-        // console.log(JSON.stringify(error, null, 2))
-        console.log(error.message + ' at line ' + error.location.start.line + ' column ' + error.location.start.column)
+        if (error instanceof Errores) {
+            console.log(error.toString());
+            analisisSemantico(sentencias, interprete, i++)
+        }
+        return error
     }
 
+}
 
 
+
+btnAnalizar.addEventListener('click', () => {
+    const codigoFuente = editor.value
+    i = 0;
+    try {
+        const sentencias = parse(codigoFuente)
+        const interprete = new InterpreterVisitor()
+        console.log({ sentencias })
+        analisisSemantico(sentencias, interprete, i)
+    } catch (error) {
+        console.log(error.message + ' at line ' + error.location.start.line + ' column ' + error.location.start.column)
+    }
 
 })

@@ -39,13 +39,6 @@ export class InterpreterVisitor extends BaseVisitor {
     const num_left = node.exp_left.accept(this);
     const num_right = node.exp_right.accept(this);
 
-    if (num_left instanceof Errores) {
-      return num_left
-    }
-    if (num_right instanceof Errores) {
-      return num_right
-    }
-
     switch (node.operacion) {
       case '+':
         if (num_left.tipo == "int" && num_right.tipo == "int") {
@@ -65,7 +58,7 @@ export class InterpreterVisitor extends BaseVisitor {
           nodoS.location = node.location
           return nodoS;
         }
-        return new Errores("La suma entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
+        throw new Errores("La suma entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
       case '-':
         if (num_left.tipo == "int" && num_right.tipo == "int") {
           const nodoR = new DatoPrimitivo({ valor: num_left.valor - num_right.valor, tipo: "int" })
@@ -78,7 +71,7 @@ export class InterpreterVisitor extends BaseVisitor {
           nodoR.location = node.location
           return nodoR;
         }
-        return new Errores("La resta entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
+        throw new Errores("La resta entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
 
       case '*':
         if (num_left.tipo == "int" && num_right.tipo == "int") {
@@ -92,11 +85,11 @@ export class InterpreterVisitor extends BaseVisitor {
           nodoM.location = node.location
           return nodoM;
         }
-        return new Errores("La multiplicacion entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
+        throw new Errores("La multiplicacion entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
 
       case '/':
         if (num_right.valor == 0) {
-          return new Errores("La division entre cero no esta permitida", node.location.start.line, node.location.start.column)
+          throw new Errores("La division entre cero no esta permitida", node.location.start.line, node.location.start.column)
         }
 
         if (num_left.tipo == "int" && num_right.tipo == "int") {
@@ -111,10 +104,10 @@ export class InterpreterVisitor extends BaseVisitor {
           return nodoD;
         }
 
-        return new Errores("La division entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
+        throw new Errores("La division entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
       case '%':
         if (!(num_left.tipo == "int" && num_right.tipo == "int")) {
-          return new Errores("El modulo entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
+          throw new Errores("El modulo entre estos tipos de datos no esta permitida", node.location.start.line, node.location.start.column)
         }
         const nodoMo = new DatoPrimitivo({ valor: num_left.valor % num_right.valor, tipo: "int" })
         nodoMo.location = node.location
@@ -131,10 +124,6 @@ export class InterpreterVisitor extends BaseVisitor {
   visitOperacion_Unaria(node) {
     const exp_unica = node.exp_unica.accept(this);
 
-    if (exp_unica instanceof Errores) {
-      return exp_unica
-    }
-
     switch (node.operacion) {
       case '-':
         if (exp_unica.tipo == "int") {
@@ -147,16 +136,16 @@ export class InterpreterVisitor extends BaseVisitor {
           nodoR.location = node.location
           return nodoR;
         }
-        return new Errores("La negacion unaria solo permite numeros", node.location.start.line, node.location.start.column)
+        throw new Errores("La negacion unaria solo permite numeros", node.location.start.line, node.location.start.column)
       case '!':
         if (!(exp_unica.tipo == "boolean")) {
-          return new Errores("La negacion unaria solo permite booleanos", node.location.start.line, node.location.start.column)
+          throw new Errores("La negacion unaria solo permite booleanos", node.location.start.line, node.location.start.column)
         }
         const nodoN = new DatoPrimitivo({ valor: !exp_unica.valor, tipo: "boolean" })
         nodoN.location = node.location
         return nodoN;
       default:
-        return new Errores("Operacion unaria no soportada", node.location.start.line, node.location.start.column)
+        throw new Errores("Operacion unaria no soportada", node.location.start.line, node.location.start.column)
 
     }
   }
@@ -167,15 +156,6 @@ export class InterpreterVisitor extends BaseVisitor {
   visitComparacion(node) {
     const num_left = node.exp_left.accept(this);
     const num_right = node.exp_right.accept(this);
-
-
-    // Validar si no es instancia de Errores
-    if (num_left instanceof Errores) {
-      return num_left
-    }
-    if (num_right instanceof Errores) {
-      return num_right
-    }
 
     // Validar los tipos de los operandos. 
     var mismoTipo = false;
@@ -207,10 +187,10 @@ export class InterpreterVisitor extends BaseVisitor {
           nodoD.location = node.location
           return nodoD;
         default:
-          return new Errores("Operacion comparativa no soportada", node.location.start.line, node.location.start.column)
+          throw new Errores("Operacion comparativa no soportada", node.location.start.line, node.location.start.column)
       }
     } else {
-      return new Errores("Tipos de datos en comparacion no soportado", node.location.start.line, node.location.start.column)
+      throw new Errores("Tipos de datos en comparacion no soportado", node.location.start.line, node.location.start.column)
     }
 
 
@@ -222,15 +202,6 @@ export class InterpreterVisitor extends BaseVisitor {
   visitRelacional(node) {
     var num_left = node.exp_left.accept(this);
     var num_right = node.exp_right.accept(this);
-
-
-    // Validar si no es instancia de Errores
-    if (num_left instanceof Errores) {
-      return num_left
-    }
-    if (num_right instanceof Errores) {
-      return num_right
-    }
 
     // Validar los tipos de los operandos. 
     var mismoTipo = false;
@@ -244,7 +215,6 @@ export class InterpreterVisitor extends BaseVisitor {
       num_right.valor = num_right.valor.charCodeAt(0);
       mismoTipo = true;
     }
-
     if (mismoTipo) {
       switch (node.operacion) {
         case '<':
@@ -264,10 +234,10 @@ export class InterpreterVisitor extends BaseVisitor {
           nodoMaI.location = node.location
           return nodoMaI;
         default:
-          return new Errores("Operacion relacion no soportada", node.location.start.line, node.location.start.column)
+          throw new Errores("Operacion relacion no soportada", node.location.start.line, node.location.start.column)
       }
     } else {
-      return new Errores("Tipos de datos en relacion no soportado", node.location.start.line, node.location.start.column)
+      throw new Errores("Tipos de datos en relacion no soportado", node.location.start.line, node.location.start.column)
     }
   }
 
@@ -277,14 +247,6 @@ export class InterpreterVisitor extends BaseVisitor {
   visitLogico(node) {
     var num_left = node.exp_left.accept(this);
     var num_right = node.exp_right.accept(this);
-
-    // Validar si no es instancia de Errores
-    if (num_left instanceof Errores) {
-      return num_left
-    }
-    if (num_right instanceof Errores) {
-      return num_right
-    }
 
     // Validar los tipos de los operandos. 
     var mismoTipo = false;
@@ -304,10 +266,10 @@ export class InterpreterVisitor extends BaseVisitor {
           nodoOr.location = node.location
           return nodoOr;
         default:
-          return new Errores("Operacion logica no soportada", node.location.start.line, node.location.start.column)
+          throw new Errores("Operacion logica no soportada", node.location.start.line, node.location.start.column)
       }
     } else {
-      return new Errores("Tipos de datos en logica no soportado", node.location.start.line, node.location.start.column)
+      throw new Errores("Tipos de datos en logica no soportado", node.location.start.line, node.location.start.column)
     }
   }
 
@@ -315,11 +277,7 @@ export class InterpreterVisitor extends BaseVisitor {
     * @type {BaseVisitor['visitAgrupacion']}
   */
   visitAgrupacion(node) {
-    const res = node.exp.accept(this);
-    if (res instanceof Errores) {
-      return res
-    }
-    return res
+    return node.exp.accept(this);
   }
 
   /**
@@ -341,31 +299,19 @@ export class InterpreterVisitor extends BaseVisitor {
       valorVariable = node.exp.accept(this);
     }
 
-    if (valorVariable instanceof Errores) {
-      return valorVariable
-    }
-
     switch (tipoVaribale) {
       case 'int':
 
         if (!valorVariable) {
           const nodoR = new DatoPrimitivo({ valor: 0, tipo: "int" })
           nodoR.location = node.location
-          var error = this.entornoActual.set(nombreVariable, nodoR);
-
-          if (error instanceof Errores) {
-            return error
-          }
+          this.entornoActual.set(nombreVariable, nodoR);
         } else {
           if (!(valorVariable.tipo == "int")) {
-            return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
+            node.exp.accept(this); new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
           var error = this.entornoActual.set(nombreVariable, valorVariable);
-
-          if (error instanceof Errores) {
-            return error
-          }
         }
         return null
       case 'float':
@@ -373,63 +319,38 @@ export class InterpreterVisitor extends BaseVisitor {
           const nodoR = new DatoPrimitivo({ valor: 0, tipo: "float" })
           nodoR.location = node.location
           var error = this.entornoActual.set(nombreVariable, nodoR);
-
-          if (error instanceof Errores) {
-            return error
-          }
         } else {
           if (!(valorVariable.tipo == "float")) {
-            return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
+            throw new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
-          var error = this.entornoActual.set(nombreVariable, valorVariable);
-
-          if (error instanceof Errores) {
-            return error
-          }
+          this.entornoActual.set(nombreVariable, valorVariable);
         }
         return null
       case 'string':
         if (!valorVariable) {
           const nodoR = new DatoPrimitivo({ valor: "", tipo: "string" })
           nodoR.location = node.location
-          var error = this.entornoActual.set(nombreVariable, nodoR);
-
-          if (error instanceof Errores) {
-            return error
-          }
+          this.entornoActual.set(nombreVariable, nodoR);
         } else {
           if (!(valorVariable.tipo == "string")) {
-            return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
+            throw new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
-          var error = this.entornoActual.set(nombreVariable, valorVariable);
-
-          if (error instanceof Errores) {
-            return error
-          }
+          this.entornoActual.set(nombreVariable, valorVariable);
         }
         return null
       case 'boolean':
         if (!valorVariable) {
           const nodoR = new DatoPrimitivo({ valor: true, tipo: "boolean" })
           nodoR.location = node.location
-          var error = this.entornoActual.set(nombreVariable, nodoR);
-
-          if (error instanceof Errores) {
-            return error
-          }
-
+          this.entornoActual.set(nombreVariable, nodoR);
         } else {
           if (!(valorVariable.tipo == "boolean")) {
-            return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
+            throw new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
-          var error = this.entornoActual.set(nombreVariable, valorVariable);
-
-          if (error instanceof Errores) {
-            return error
-          }
+          this.entornoActual.set(nombreVariable, valorVariable);
           return null
         }
         return null
@@ -437,36 +358,25 @@ export class InterpreterVisitor extends BaseVisitor {
         if (!valorVariable) {
           const nodoR = new DatoPrimitivo({ valor: '', tipo: "char" })
           nodoR.location = node.location
-          var error = this.entornoActual.set(nombreVariable, nodoR);
-
-          if (error instanceof Errores) {
-            return error
-          }
+          this.entornoActual.set(nombreVariable, nodoR);
         } else {
           if (!(valorVariable.tipo == "char")) {
-            return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
+            throw new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
-          var error = this.entornoActual.set(nombreVariable, valorVariable);
-
-          if (error instanceof Errores) {
-            return error
-          }
+          this.entornoActual.set(nombreVariable, valorVariable);
         }
         return null
       case 'var':
         if (!valorVariable) {
-          return new Errores("Una variable tipo var debe de estar inicializa", node.location.start.line, node.location.start.column)
+          throw new Errores("Una variable tipo var debe de estar inicializa", node.location.start.line, node.location.start.column)
         } else {
           valorVariable.location = node.location
-          var error = this.entornoActual.set(nombreVariable, valorVariable);
-          if (error instanceof Errores) {
-            return error
-          }
+          this.entornoActual.set(nombreVariable, valorVariable);
         }
         return null
       default:
-        return new Errores("Tipo de variable no identificada", node.location.start.line, node.location.start.column)
+        throw new Errores("Tipo de variable no identificada", node.location.start.line, node.location.start.column)
     }
   }
 
@@ -475,11 +385,7 @@ export class InterpreterVisitor extends BaseVisitor {
   */
   visitReferenciaVariable(node) {
     const nombreVariable = node.id;
-    const res = this.entornoActual.get(nombreVariable, node.location.start);
-    if (res instanceof Errores) {
-      return res
-    }
-    return res
+    return this.entornoActual.get(nombreVariable, node.location.start);
   }
 
   /**
@@ -487,16 +393,7 @@ export class InterpreterVisitor extends BaseVisitor {
  */
   visitAsignacion(node) {
     const valor = node.asgn.accept(this);
-    if (valor instanceof Errores) {
-      return valor;
-    }
-
-    const err = this.entornoActual.assign(node.id, valor);
-
-    if (err instanceof Errores) {
-      return err
-    }
-
+    this.entornoActual.assign(node.id, valor);
     return valor;
   }
 
@@ -505,16 +402,7 @@ export class InterpreterVisitor extends BaseVisitor {
  */
   visitIncremento(node) {
     const valor = node.valor.accept(this);
-    if (valor instanceof Errores) {
-      return valor;
-    }
-
-    const err = this.entornoActual.incremento(node.id, valor);
-
-    if (err instanceof Errores) {
-      return err
-    }
-
+    this.entornoActual.incremento(node.id, valor);
     return valor;
   }
 
@@ -523,16 +411,7 @@ export class InterpreterVisitor extends BaseVisitor {
  */
   visitDecremento(node) {
     const valor = node.valor.accept(this);
-    if (valor instanceof Errores) {
-      return valor;
-    }
-
-    const err = this.entornoActual.decremento(node.id, valor);
-
-    if (err instanceof Errores) {
-      return err
-    }
-
+    this.entornoActual.decremento(node.id, valor);
     return valor;
   }
 
@@ -541,11 +420,6 @@ export class InterpreterVisitor extends BaseVisitor {
   */
   visitPrintln(node) {
     const valor = node.exp.accept(this);
-
-    if (valor instanceof Errores) {
-      return valor
-    }
-
     this.salida += valor.valor + '\n';
   }
 
@@ -556,14 +430,6 @@ export class InterpreterVisitor extends BaseVisitor {
   visitExpresionPrintln(node) {
     const num_left = node.exp_left.accept(this);
     const num_right = node.exp_right.accept(this);
-
-    if (num_left instanceof Errores) {
-      return num_left
-    }
-    if (num_right instanceof Errores) {
-      return num_right
-    }
-
     const nodoS = new DatoPrimitivo({ valor: String(num_left.valor) + String(num_right.valor), tipo: "string" })
     nodoS.location = node.location
     return nodoS;
@@ -573,10 +439,7 @@ export class InterpreterVisitor extends BaseVisitor {
     * @type {BaseVisitor['visitExpresionStmt']}
   */
   visitExpresionStmt(node) {
-    const err = node.exp.accept(this);
-    if (err instanceof Errores) {
-      return err
-    }
+    node.exp.accept(this);
   }
 
   /**
@@ -587,11 +450,7 @@ export class InterpreterVisitor extends BaseVisitor {
     this.entornoActual = new Entorno(entornoAnterior);
 
     for (let i = 0; i < node.dcls.length; i++) {
-      var res = node.dcls[i].accept(this);
-      if (res instanceof Errores) {
-        this.entornoActual = entornoAnterior;
-        return res
-      }
+      node.dcls[i].accept(this);
     }
     this.entornoActual = entornoAnterior;
     return
@@ -602,25 +461,16 @@ export class InterpreterVisitor extends BaseVisitor {
    */
   visitTernario(node) {
     const cond = node.cond.accept(this)
-    if (cond instanceof Errores) {
-      return cond
-    }
 
     if (!(cond instanceof DatoPrimitivo) && cond.tipo != "boolean") {
-      return new Errores("La condicion del ", node.location.start.line, node.location.start.column)
+      throw new Errores("La condicion del ", node.location.start.line, node.location.start.column)
     }
 
     if (cond.dato == "true") {
       const expTrue = node.expTrue.accept(this)
-      if (expTrue instanceof Errores) {
-        return expTrue
-      }
       return expTrue
     } else {
       const expFalse = node.expFalse.accept(this)
-      if (expFalse instanceof Errores) {
-        return expFalse
-      }
       return expFalse
     }
   }
@@ -631,23 +481,17 @@ export class InterpreterVisitor extends BaseVisitor {
   visitIf(node) {
     const cond = node.cond.accept(this);
     if (cond.tipo != "boolean") {
-      return new Errores("La condicion del if no es un booleano", node.location.start.line, node.location.start.column)
+      throw new Errores("La condicion del if no es un booleano", node.location.start.line, node.location.start.column)
 
     }
 
     if (cond.valor) {
-      var res = node.stmtTrue.accept(this);
-      if (res instanceof Errores) {
-        return res;
-      }
+      node.stmtTrue.accept(this);
       return;
     }
 
     if (node.stmtFalse) {
-      var res = node.stmtFalse.accept(this);
-      if (res instanceof Errores) {
-        return res;
-      }
+      node.stmtFalse.accept(this);
     }
 
   }
@@ -658,25 +502,15 @@ export class InterpreterVisitor extends BaseVisitor {
   visitSwitch(node) {
     const cond = node.exp.accept(this)
 
-    if (cond instanceof Errores) {
-      return cond;
-    }
-
     try {
       for (let i = 0; i < node.casos.length; i++) {
         if (cond.valor === node.casos[i].exp.accept(this).valor) {
-          var err = node.casos[i].accept(this);
-          if (err instanceof Errores) {
-            return err
-          }
+          node.casos[i].accept(this);
         }
       }
 
       if (node.stmtDefault) {
-        var res = node.stmtDefault.accept(this);
-        if (res instanceof Errores) {
-          return res;
-        }
+        node.stmtDefault.accept(this);
       }
     } catch (error) {
 
@@ -694,10 +528,7 @@ export class InterpreterVisitor extends BaseVisitor {
    * @type {BaseVisitor['visitCaso']}
    */
   visitCaso(node) {
-    const err = node.stmt.accept(this)
-    if (err instanceof Errores) {
-      return err
-    }
+    node.stmt.accept(this)
   }
 
   /**
@@ -706,22 +537,14 @@ export class InterpreterVisitor extends BaseVisitor {
   visitWhile(node) {
     const cond = node.cond.accept(this);
 
-    if (cond instanceof Errores) {
-      return cond;
-    }
-
     if (cond.tipo != "boolean") {
-      return new Errores("La condicion del while no es un booleano", node.location.start.line, node.location.start.column)
+      throw new Errores("La condicion del while no es un booleano", node.location.start.line, node.location.start.column)
     }
 
     const entornoConElQueEmpezo = this.entornoActual;
     try {
       while (node.cond.accept(this).valor) {
-        const res = node.stmt.accept(this);
-        if (res instanceof Errores) {
-          this.entornoActual = entornoConElQueEmpezo
-          return res;
-        }
+        node.stmt.accept(this);
       }
     } catch (error) {
       this.entornoActual = entornoConElQueEmpezo;
@@ -805,31 +628,16 @@ export class InterpreterVisitor extends BaseVisitor {
     const argumentos = [];
     for (let i = 0; i < node.args.length; i++) {
       const arg = node.args[i].accept(this);
-
-      if (arg instanceof Errores){
-        return arg
-      }
-
       argumentos.push(arg);
     }
 
     if (!(funcion instanceof Invocable)) {
-      return new Errores("La llamada No es invocable", node.location.start.line, node.location.start.column)
+      throw new Errores("La llamada No es invocable", node.location.start.line, node.location.start.column)
     }
 
-    const err = funcion.aridad(argumentos)
-    if (err instanceof Errores) {
-      return err
-    }
+    funcion.aridad(argumentos)
 
-
-    const res = funcion.invocar(this, argumentos);
-
-    if (res instanceof Errores) {
-      return res
-    }
-
-    return res
+    return funcion.invocar(this, argumentos);
   }
 
   /**

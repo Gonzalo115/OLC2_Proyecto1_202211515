@@ -18,7 +18,7 @@ export class Entorno {
         const exist = this.valores[nombre];
 
         if (exist) {
-            return new Errores(`La variable "${nombre}" ya existe`, valor.location.start.line, valor.location.start.column)
+            throw new Errores(`La variable "${nombre}" ya existe`, valor.location.start.line, valor.location.start.column)
         }
 
         this.valores[nombre] = valor;
@@ -35,7 +35,7 @@ export class Entorno {
         if (!valorActual && this.entornoAnterior) {
             return this.entornoAnterior.get(nombre, start);
         }
-        return new Errores(`La variable "${nombre}" no definida `, start.line, start.column)
+        throw new Errores(`La variable "${nombre}" no definida `, start.line, start.column)
 
     }
 
@@ -47,7 +47,7 @@ export class Entorno {
         const valorActual = this.valores[nombre];
         if (valorActual) {
             if (this.valores[nombre].tipo != valor.tipo) {
-                return new Errores(`A la variable "${nombre}" no se le puede asinar otro tipo de dato que no sea ${this.valores[nombre].tipo}`, valor.location.start.line, valor.location.start.column)
+                throw new Errores(`A la variable "${nombre}" no se le puede asinar otro tipo de dato que no sea ${this.valores[nombre].tipo}`, valor.location.start.line, valor.location.start.column)
             }
 
             this.valores[nombre] = valor;
@@ -58,7 +58,7 @@ export class Entorno {
             this.entornoAnterior.assign(nombre, valor);
             return;
         }
-        return new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)
+        throw new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)
     }
 
 
@@ -70,7 +70,7 @@ export class Entorno {
                     valorActual.valor = valorActual.valor + valor.valor
                     return this.valores[nombre] = valorActual
                 }
-                return new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
+                throw new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
 
             }
             if (this.valores[nombre].tipo == "float") {
@@ -78,17 +78,17 @@ export class Entorno {
                     valorActual.valor = valorActual.valor + valor.valor
                     return this.valores[nombre] = valorActual
                 }
-                return new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
+                throw new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
             }
             if (this.valores[nombre].tipo == "string") {
                 if (valor.tipo == "string") {
                     valorActual.valor = valorActual.valor + valor.valor
                     return this.valores[nombre] = valorActual
                 }
-                return new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
+                throw new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
             }
 
-            return new Errores(`A la variable "${nombre}" no se le puede incrementar`, valor.location.start.line, valor.location.start.column)
+            throw new Errores(`A la variable "${nombre}" no se le puede incrementar`, valor.location.start.line, valor.location.start.column)
 
         }
 
@@ -96,7 +96,7 @@ export class Entorno {
             this.entornoAnterior.incremento(nombre, valor);
             return;
         }
-        return new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)
+        throw new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)
     }
 
     decremento(nombre, valor) {
@@ -107,7 +107,7 @@ export class Entorno {
                     valorActual.valor = valorActual.valor - valor.valor
                     return this.valores[nombre] = valorActual
                 }
-                return new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
+                throw new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
 
             }
             if (this.valores[nombre].tipo == "float") {
@@ -115,10 +115,10 @@ export class Entorno {
                     valorActual.valor = valorActual.valor - valor.valor
                     return this.valores[nombre] = valorActual
                 }
-                return new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
+                throw new Errores(`A la variable "${nombre}" no se le puede incrementar con un valor ${valor.tipo}`, valor.location.start.line, valor.location.start.column)
             }
 
-            return new Errores(`A la variable "${nombre}" no se le puede incrementar`, valor.location.start.line, valor.location.start.column)
+            throw new Errores(`A la variable "${nombre}" no se le puede incrementar`, valor.location.start.line, valor.location.start.column)
 
         }
 
@@ -126,6 +126,6 @@ export class Entorno {
             this.entornoAnterior.decremento(nombre, valor);
             return;
         }
-        return new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)
+        throw new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)
     }
 }
