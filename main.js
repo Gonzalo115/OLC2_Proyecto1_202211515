@@ -24,6 +24,7 @@ function analisisSemantico(sentencias, interprete) {
             console.log(error.toString());
             analisisSemantico(sentencias, interprete, i++)
         }
+        console.log(error.message)
         return error
     }
 
@@ -40,7 +41,7 @@ btnAnalizar.addEventListener('click', () => {
         console.log({ sentencias })
         analisisSemantico(sentencias, interprete, i)
     } catch (error) {
-        console.log(error.message + ' at line ' + error.location.start.line + ' column ' + error.location.start.column)
+        console.log(error.message + ' at line ' + 0 + ' column ' + 0)
     }
 
 })

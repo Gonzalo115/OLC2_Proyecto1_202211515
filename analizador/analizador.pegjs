@@ -180,7 +180,9 @@ Multiplicacion = exp_left:Unaria expansion:(
 }
 
 Unaria =_ operacion:("-" / "!") _ num:Unaria _ { return crearNodo('OperacionU', { operacion: operacion, exp_unica: num }) }
+/ LlamadaEs
 / Llamada
+
 
 Llamada = callee:Nativo _ params:("(" args:Argumentos? ")" { return args })* {
   return params.reduce(
@@ -192,6 +194,10 @@ Llamada = callee:Nativo _ params:("(" args:Argumentos? ")" { return args })* {
 }
 
 Argumentos = arg:Expresion _ args:("," _ exp:Expresion { return exp })* { return [arg, ...args] }
+
+LlamadaEs = _ callee:idtypeof _ args:Expresion* _ { return crearNodo('llamada', { callee, args: args}) }
+
+idtypeof = id:"typeof" { return crearNodo('referenciaVariable',  { id }) }
 
 
 Nativo = [0-9]+("." [0-9]+)                           { return crearNodo('dato', { valor: parseFloat(text()), tipo: "float"}) }

@@ -308,7 +308,10 @@ export class InterpreterVisitor extends BaseVisitor {
           this.entornoActual.set(nombreVariable, nodoR);
         } else {
           if (!(valorVariable.tipo == "int")) {
-            node.exp.accept(this); new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
+            const nodoN = new DatoPrimitivo({ valor: "null", tipo: "null" })
+            nodoN.location = node.location
+            this.entornoActual.set(nombreVariable, nodoN);
+            throw new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
           var error = this.entornoActual.set(nombreVariable, valorVariable);
@@ -321,6 +324,9 @@ export class InterpreterVisitor extends BaseVisitor {
           var error = this.entornoActual.set(nombreVariable, nodoR);
         } else {
           if (!(valorVariable.tipo == "float")) {
+            const nodoN = new DatoPrimitivo({ valor: "null", tipo: "null" })
+            nodoN.location = node.location
+            this.entornoActual.set(nombreVariable, nodoN);
             throw new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
@@ -334,6 +340,9 @@ export class InterpreterVisitor extends BaseVisitor {
           this.entornoActual.set(nombreVariable, nodoR);
         } else {
           if (!(valorVariable.tipo == "string")) {
+            const nodoN = new DatoPrimitivo({ valor: "null", tipo: "null" })
+            nodoN.location = node.location
+            this.entornoActual.set(nombreVariable, nodoN);
             throw new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
@@ -347,6 +356,9 @@ export class InterpreterVisitor extends BaseVisitor {
           this.entornoActual.set(nombreVariable, nodoR);
         } else {
           if (!(valorVariable.tipo == "boolean")) {
+            const nodoN = new DatoPrimitivo({ valor: "null", tipo: "null" })
+            nodoN.location = node.location
+            this.entornoActual.set(nombreVariable, nodoN);
             throw new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
@@ -361,6 +373,9 @@ export class InterpreterVisitor extends BaseVisitor {
           this.entornoActual.set(nombreVariable, nodoR);
         } else {
           if (!(valorVariable.tipo == "char")) {
+            const nodoN = new DatoPrimitivo({ valor: "null", tipo: "null" })
+            nodoN.location = node.location
+            this.entornoActual.set(nombreVariable, nodoN);
             throw new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
@@ -624,6 +639,7 @@ export class InterpreterVisitor extends BaseVisitor {
   * @type {BaseVisitor['visitLlamada']}
   */
   visitLlamada(node) {
+    console.log(node)
     const funcion = node.callee.accept(this);
     const argumentos = [];
     for (let i = 0; i < node.args.length; i++) {
@@ -636,7 +652,6 @@ export class InterpreterVisitor extends BaseVisitor {
     }
 
     funcion.aridad(argumentos)
-
     return funcion.invocar(this, argumentos);
   }
 

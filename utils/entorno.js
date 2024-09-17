@@ -1,4 +1,5 @@
 import { Errores } from "./errores.js";
+//import { DatoPrimitivo } from './nodos.js'
 
 export class Entorno {
 
@@ -16,8 +17,7 @@ export class Entorno {
      */
     set(nombre, valor) {
         const exist = this.valores[nombre];
-
-        if (exist) {
+        if (valor.hasOwnProperty(exist)) {
             throw new Errores(`La variable "${nombre}" ya existe`, valor.location.start.line, valor.location.start.column)
         }
 
@@ -47,6 +47,9 @@ export class Entorno {
         const valorActual = this.valores[nombre];
         if (valorActual) {
             if (this.valores[nombre].tipo != valor.tipo) {
+                valor.tipo = "null"
+                valor.valor = "null"
+                this.valores[nombre] = valor;
                 throw new Errores(`A la variable "${nombre}" no se le puede asinar otro tipo de dato que no sea ${this.valores[nombre].tipo}`, valor.location.start.line, valor.location.start.column)
             }
 
