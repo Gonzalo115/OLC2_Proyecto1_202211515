@@ -78,6 +78,15 @@
 
  * @typedef {import('./nodos.js').Return} Return
 
+
+ * @typedef {import('./nodos.js').Llamada} Llamada
+
+
+ * @typedef {import('./nodos.js').FuncDcl} FuncDcl
+
+
+ * @typedef {import('./nodos.js').Parametro} Parametro
+
  */
 
 
@@ -319,6 +328,33 @@ export class BaseVisitor {
      */
     visitReturn(node) {
         throw new Error('Metodo visitReturn no implementado');
+    }
+    
+
+    /**
+     * @param {Llamada} node
+     * @returns {any}
+     */
+    visitLlamada(node) {
+        throw new Error('Metodo visitLlamada no implementado');
+    }
+    
+
+    /**
+     * @param {FuncDcl} node
+     * @returns {any}
+     */
+    visitFuncDcl(node) {
+        throw new Error('Metodo visitFuncDcl no implementado');
+    }
+    
+
+    /**
+     * @param {Parametro} node
+     * @returns {any}
+     */
+    visitParametro(node) {
+        throw new Error('Metodo visitParametro no implementado');
     }
     
 }

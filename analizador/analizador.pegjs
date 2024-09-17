@@ -26,7 +26,10 @@
       'for':                  nodos.For,
       'break':                nodos.Break,
       'continue':             nodos.Continue,
-      'return':               nodos.Return
+      'return':               nodos.Return,
+      'llamada':              nodos.Llamada,
+      'dclFunc':              nodos.FuncDcl,
+      'parametro':            nodos.Parametro
     }
 
     const nodo = new tipos[tipoNodo](props)
@@ -38,15 +41,22 @@
 programa = _ dcl:Declaracion* _ { return dcl }
 
 Declaracion = _ dcl:DeclaracionVar _ { return dcl }
+            / _ dcF:FuncDcl _ { return dcF }
             / _ stmt:Stmt _ { return stmt }
 
 DeclaracionVar =  tipo:Tipo _ id:Identificador
                 exp:(
                   _"=" _ exp:Expresion _  { return exp } 
                 )? ";" { return crearNodo('declaracionVariable', { tipo, id, exp }) } 
-                
+
+FuncDcl = tipo:TipoFuc _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('dclFunc', { tipo, id, params: params || [], bloque }) }
+
+Parametros = id:Parametro _ params:("," _ ids:Parametro { return ids })* { return [id, ...params] }
+
+Parametro  = _ tipo:TipoFuc _ id:Identificador _ { return crearNodo('parametro', { tipo, id }) }
+
 Stmt = "System.out.println" _ "(" _ exp:ExpresionPrintln _ ")" _ ";" { return crearNodo('println', { exp }) }
-    / "{" _ dcls:Declaracion* _ "}" { return crearNodo('bloque', { dcls }) }
+    / Bloque:Bloque { return Bloque }
     / "if" _ "(" _ cond:Expresion _ ")" _ stmtTrue:Stmt 
       stmtFalse:(
         _ "else" _ stmtFalse:Stmt { return stmtFalse } 
@@ -63,6 +73,8 @@ Stmt = "System.out.println" _ "(" _ exp:ExpresionPrintln _ ")" _ ";" { return cr
     / "continue" _ ";" { return crearNodo('continue') }
     / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
+
+Bloque = "{" _ dcls:Declaracion* _ "}" { return crearNodo('bloque', { dcls }) }
 
 Casos = _ "case" _ exp:Expresion _ ":" _ stmt:BloqueAux _ { return crearNodo('casos', {exp, stmt}) }
 
@@ -168,7 +180,19 @@ Multiplicacion = exp_left:Unaria expansion:(
 }
 
 Unaria =_ operacion:("-" / "!") _ num:Unaria _ { return crearNodo('OperacionU', { operacion: operacion, exp_unica: num }) }
-      / Nativo
+/ Llamada
+
+Llamada = callee:Nativo _ params:("(" args:Argumentos? ")" { return args })* {
+  return params.reduce(
+    (callee, args) => {
+      return crearNodo('llamada', { callee, args: args || [] })
+    },
+    callee
+  )
+}
+
+Argumentos = arg:Expresion _ args:("," _ exp:Expresion { return exp })* { return [arg, ...args] }
+
 
 Nativo = [0-9]+("." [0-9]+)                           { return crearNodo('dato', { valor: parseFloat(text()), tipo: "float"}) }
       /[0-9]+                                         { return crearNodo('dato', { valor: parseInt(text(), 10), tipo: "int"}) } 
@@ -195,6 +219,15 @@ Tipo  = "int"     { return text(); }
       / "boolean" { return text(); }
       / "char"    { return text(); }
       / "var"     { return text(); }
+
+TipoFuc = "int"     { return text(); }
+        / "float"   { return text(); }
+        / "string"  { return text(); }
+        / "boolean" { return text(); }
+        / "char"    { return text(); }
+        / "void"    { return text(); }    
+        / Identificador { return text(); }
+
 
 // Identificador
 Identificador = [a-zA-Z][a-zA-Z0-9]* { return text() }

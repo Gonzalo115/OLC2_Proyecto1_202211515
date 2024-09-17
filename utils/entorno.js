@@ -14,7 +14,7 @@ export class Entorno {
      * @param {string} nombre
      * @param {any} valor
      */
-    setVariable(nombre, valor) {
+    set(nombre, valor) {
         const exist = this.valores[nombre];
 
         if (exist) {
@@ -27,13 +27,13 @@ export class Entorno {
     /**
      * @param {string} nombre
      */
-    getVariable(nombre, start) {
+    get(nombre, start) {
         const valorActual = this.valores[nombre];
 
         if (valorActual) return valorActual;
 
         if (!valorActual && this.entornoAnterior) {
-            return this.entornoAnterior.getVariable(nombre, start);
+            return this.entornoAnterior.get(nombre, start);
         }
         return new Errores(`La variable "${nombre}" no definida `, start.line, start.column)
 
@@ -43,7 +43,7 @@ export class Entorno {
    * @param {string} nombre
    * @param {any} valor
    */
-    assignVariable(nombre, valor) {
+    assign(nombre, valor) {
         const valorActual = this.valores[nombre];
         if (valorActual) {
             if (this.valores[nombre].tipo != valor.tipo) {
@@ -55,14 +55,14 @@ export class Entorno {
         }
 
         if (!valorActual && this.entornoAnterior) {
-            this.entornoAnterior.assignVariable(nombre, valor);
+            this.entornoAnterior.assign(nombre, valor);
             return;
         }
         return new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)
     }
 
 
-    incrementoVariable(nombre, valor) {
+    incremento(nombre, valor) {
         const valorActual = this.valores[nombre];
         if (valorActual) {
             if (this.valores[nombre].tipo == "int") {
@@ -93,13 +93,13 @@ export class Entorno {
         }
 
         if (!valorActual && this.entornoAnterior) {
-            this.entornoAnterior.incrementoVariable(nombre, valor);
+            this.entornoAnterior.incremento(nombre, valor);
             return;
         }
         return new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)
     }
 
-    decrementoVariable(nombre, valor) {
+    decremento(nombre, valor) {
         const valorActual = this.valores[nombre];
         if (valorActual) {
             if (this.valores[nombre].tipo == "int") {
@@ -123,7 +123,7 @@ export class Entorno {
         }
 
         if (!valorActual && this.entornoAnterior) {
-            this.entornoAnterior.decrementoVariable(nombre, valor);
+            this.entornoAnterior.decremento(nombre, valor);
             return;
         }
         return new Errores(`La variable "${nombre}" no definida `, valor.location.start.line, valor.location.start.column)

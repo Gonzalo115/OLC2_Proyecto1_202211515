@@ -3,6 +3,9 @@ import { Errores } from "../utils/errores.js";
 import { DatoPrimitivo } from "./nodos.js";
 import { BaseVisitor } from "./visitor.js";
 import nodos, { Expresion } from './nodos.js'
+import { Invocable } from "./invocable.js";
+import { embebidas } from "./embebidas.js";
+import { FuncionForanea } from "./foreanea.js";
 import { BreakException, ContinueException, ReturnException } from "./transferencia.js";
 
 
@@ -12,11 +15,21 @@ export class InterpreterVisitor extends BaseVisitor {
   constructor() {
     super();
     this.entornoActual = new Entorno();
+
+    // funciones embebidas
+    Object.entries(embebidas).forEach(([nombre, funcion]) => {
+      this.entornoActual.set(nombre, funcion);
+    });
+
     this.salida = '';
     /**
      * @type {Expresion | null}
     */
     this.prevContinue = null;
+  }
+
+  interpretar(nodo) {
+    return nodo.accept(this);
   }
 
   /**
@@ -338,7 +351,7 @@ export class InterpreterVisitor extends BaseVisitor {
         if (!valorVariable) {
           const nodoR = new DatoPrimitivo({ valor: 0, tipo: "int" })
           nodoR.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, nodoR);
+          var error = this.entornoActual.set(nombreVariable, nodoR);
 
           if (error instanceof Errores) {
             return error
@@ -348,7 +361,7 @@ export class InterpreterVisitor extends BaseVisitor {
             return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, valorVariable);
+          var error = this.entornoActual.set(nombreVariable, valorVariable);
 
           if (error instanceof Errores) {
             return error
@@ -359,7 +372,7 @@ export class InterpreterVisitor extends BaseVisitor {
         if (!valorVariable) {
           const nodoR = new DatoPrimitivo({ valor: 0, tipo: "float" })
           nodoR.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, nodoR);
+          var error = this.entornoActual.set(nombreVariable, nodoR);
 
           if (error instanceof Errores) {
             return error
@@ -369,7 +382,7 @@ export class InterpreterVisitor extends BaseVisitor {
             return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, valorVariable);
+          var error = this.entornoActual.set(nombreVariable, valorVariable);
 
           if (error instanceof Errores) {
             return error
@@ -380,7 +393,7 @@ export class InterpreterVisitor extends BaseVisitor {
         if (!valorVariable) {
           const nodoR = new DatoPrimitivo({ valor: "", tipo: "string" })
           nodoR.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, nodoR);
+          var error = this.entornoActual.set(nombreVariable, nodoR);
 
           if (error instanceof Errores) {
             return error
@@ -390,7 +403,7 @@ export class InterpreterVisitor extends BaseVisitor {
             return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, valorVariable);
+          var error = this.entornoActual.set(nombreVariable, valorVariable);
 
           if (error instanceof Errores) {
             return error
@@ -401,7 +414,7 @@ export class InterpreterVisitor extends BaseVisitor {
         if (!valorVariable) {
           const nodoR = new DatoPrimitivo({ valor: true, tipo: "boolean" })
           nodoR.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, nodoR);
+          var error = this.entornoActual.set(nombreVariable, nodoR);
 
           if (error instanceof Errores) {
             return error
@@ -412,7 +425,7 @@ export class InterpreterVisitor extends BaseVisitor {
             return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, valorVariable);
+          var error = this.entornoActual.set(nombreVariable, valorVariable);
 
           if (error instanceof Errores) {
             return error
@@ -424,7 +437,7 @@ export class InterpreterVisitor extends BaseVisitor {
         if (!valorVariable) {
           const nodoR = new DatoPrimitivo({ valor: '', tipo: "char" })
           nodoR.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, nodoR);
+          var error = this.entornoActual.set(nombreVariable, nodoR);
 
           if (error instanceof Errores) {
             return error
@@ -434,7 +447,7 @@ export class InterpreterVisitor extends BaseVisitor {
             return new Errores("El tipo de la varibale y de la expresion no son la misma", node.location.start.line, node.location.start.column)
           }
           valorVariable.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, valorVariable);
+          var error = this.entornoActual.set(nombreVariable, valorVariable);
 
           if (error instanceof Errores) {
             return error
@@ -446,7 +459,7 @@ export class InterpreterVisitor extends BaseVisitor {
           return new Errores("Una variable tipo var debe de estar inicializa", node.location.start.line, node.location.start.column)
         } else {
           valorVariable.location = node.location
-          var error = this.entornoActual.setVariable(nombreVariable, valorVariable);
+          var error = this.entornoActual.set(nombreVariable, valorVariable);
           if (error instanceof Errores) {
             return error
           }
@@ -462,7 +475,7 @@ export class InterpreterVisitor extends BaseVisitor {
   */
   visitReferenciaVariable(node) {
     const nombreVariable = node.id;
-    const res = this.entornoActual.getVariable(nombreVariable, node.location.start);
+    const res = this.entornoActual.get(nombreVariable, node.location.start);
     if (res instanceof Errores) {
       return res
     }
@@ -478,7 +491,7 @@ export class InterpreterVisitor extends BaseVisitor {
       return valor;
     }
 
-    const err = this.entornoActual.assignVariable(node.id, valor);
+    const err = this.entornoActual.assign(node.id, valor);
 
     if (err instanceof Errores) {
       return err
@@ -496,7 +509,7 @@ export class InterpreterVisitor extends BaseVisitor {
       return valor;
     }
 
-    const err = this.entornoActual.incrementoVariable(node.id, valor);
+    const err = this.entornoActual.incremento(node.id, valor);
 
     if (err instanceof Errores) {
       return err
@@ -514,7 +527,7 @@ export class InterpreterVisitor extends BaseVisitor {
       return valor;
     }
 
-    const err = this.entornoActual.decrementoVariable(node.id, valor);
+    const err = this.entornoActual.decremento(node.id, valor);
 
     if (err instanceof Errores) {
       return err
@@ -589,23 +602,23 @@ export class InterpreterVisitor extends BaseVisitor {
    */
   visitTernario(node) {
     const cond = node.cond.accept(this)
-    if (cond instanceof Errores){
+    if (cond instanceof Errores) {
       return cond
     }
 
-    if (!(cond instanceof DatoPrimitivo) && cond.tipo != "boolean"){
+    if (!(cond instanceof DatoPrimitivo) && cond.tipo != "boolean") {
       return new Errores("La condicion del ", node.location.start.line, node.location.start.column)
     }
 
-    if (cond.dato == "true"){
+    if (cond.dato == "true") {
       const expTrue = node.expTrue.accept(this)
-      if (expTrue instanceof Errores){
+      if (expTrue instanceof Errores) {
         return expTrue
       }
       return expTrue
-    }else {
+    } else {
       const expFalse = node.expFalse.accept(this)
-      if (expFalse instanceof Errores){
+      if (expFalse instanceof Errores) {
         return expFalse
       }
       return expFalse
@@ -782,6 +795,56 @@ export class InterpreterVisitor extends BaseVisitor {
       valor = node.exp.accept(this);
     }
     throw new ReturnException(valor);
+  }
+
+  /**
+  * @type {BaseVisitor['visitLlamada']}
+  */
+  visitLlamada(node) {
+    const funcion = node.callee.accept(this);
+    const argumentos = [];
+    for (let i = 0; i < node.args.length; i++) {
+      const arg = node.args[i].accept(this);
+
+      if (arg instanceof Errores){
+        return arg
+      }
+
+      argumentos.push(arg);
+    }
+
+    if (!(funcion instanceof Invocable)) {
+      return new Errores("La llamada No es invocable", node.location.start.line, node.location.start.column)
+    }
+
+    const err = funcion.aridad(argumentos)
+    if (err instanceof Errores) {
+      return err
+    }
+
+
+    const res = funcion.invocar(this, argumentos);
+
+    if (res instanceof Errores) {
+      return res
+    }
+
+    return res
+  }
+
+  /**
+  * @type {BaseVisitor['visitFuncDcl']}
+  */
+  visitFuncDcl(node) {
+    const funcion = new FuncionForanea(node, this.entornoActual);
+    this.entornoActual.set(node.id, funcion);
+  }
+
+  /**
+  * @type {BaseVisitor['visitParametro']}
+  */
+  visitParametro(node) {
+    throw node
   }
 
 

@@ -870,4 +870,119 @@ export class Return extends Expresion {
     }
 }
     
-export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, DatoPrimitivo, DeclaracionVariable, ReferenciaVariable, Asignacion, Incremento, Decremento, Println, ExpresionPrintln, ExpresionStmt, Bloque, Ternario, If, Switch, Caso, While, For, Break, Continue, Return }
+export class Llamada extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.callee Expresion a llamar
+ * @param {Expresion[]} options.args Argumentos de la llamada
+    */
+    constructor({ callee, args }) {
+        super();
+        
+        /**
+         * Expresion a llamar
+         * @type {Expresion}
+        */
+        this.callee = callee;
+
+
+        /**
+         * Argumentos de la llamada
+         * @type {Expresion[]}
+        */
+        this.args = args;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitLlamada(this);
+    }
+}
+    
+export class FuncDcl extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo que puede devolver la funcion
+ * @param {string} options.id Identificador de la funcion
+ * @param {string[]} options.params Parametros de la funcion
+ * @param {Bloque} options.bloque Cuerpo de la funcion
+    */
+    constructor({ tipo, id, params, bloque }) {
+        super();
+        
+        /**
+         * Tipo que puede devolver la funcion
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador de la funcion
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Parametros de la funcion
+         * @type {string[]}
+        */
+        this.params = params;
+
+
+        /**
+         * Cuerpo de la funcion
+         * @type {Bloque}
+        */
+        this.bloque = bloque;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitFuncDcl(this);
+    }
+}
+    
+export class Parametro extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo del parametro
+ * @param {string} options.id Identificador de la funcion
+    */
+    constructor({ tipo, id }) {
+        super();
+        
+        /**
+         * Tipo del parametro
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador de la funcion
+         * @type {string}
+        */
+        this.id = id;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitParametro(this);
+    }
+}
+    
+export default { Expresion, Aritmetica, Operacion_Unaria, Comparacion, Relacional, Logico, Agrupacion, DatoPrimitivo, DeclaracionVariable, ReferenciaVariable, Asignacion, Incremento, Decremento, Println, ExpresionPrintln, ExpresionStmt, Bloque, Ternario, If, Switch, Caso, While, For, Break, Continue, Return, Llamada, FuncDcl, Parametro }
