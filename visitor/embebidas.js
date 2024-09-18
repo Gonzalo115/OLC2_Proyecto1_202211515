@@ -114,3 +114,5 @@ export const embebidas = {
         }
     ),
 };
+
+export { FuncionNativa };

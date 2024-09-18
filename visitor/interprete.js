@@ -26,6 +26,9 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type {Expresion | null}
     */
     this.prevContinue = null;
+
+
+    this.entornosGG = [];
   }
 
   interpretar(nodo) {
@@ -467,6 +470,7 @@ export class InterpreterVisitor extends BaseVisitor {
     for (let i = 0; i < node.dcls.length; i++) {
       node.dcls[i].accept(this);
     }
+    this.entornosGG.push(this.entornoActual);
     this.entornoActual = entornoAnterior;
     return
   }
@@ -639,7 +643,6 @@ export class InterpreterVisitor extends BaseVisitor {
   * @type {BaseVisitor['visitLlamada']}
   */
   visitLlamada(node) {
-    console.log(node)
     const funcion = node.callee.accept(this);
     const argumentos = [];
     for (let i = 0; i < node.args.length; i++) {
